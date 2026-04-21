@@ -36,7 +36,7 @@
     // ═══ LOGOS ════════════════════════════════════════════════════════
     // Полный логотип: три шеврона + текст "vanilla"
     function VanillaMark({ size = 22, textColor = V.ink }) {
-      const height = size * 1.6;
+      const height = size * 1.4;
       return (
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}>
           <div
@@ -60,34 +60,6 @@
       );
     }
 
-    // Только стопка из трёх шевронов (без текста) — для чашек и плиток
-    function VanillaChevrons({ size = 24, color = V.coffee, opacity = 1 }) {
-      return (
-        <div
-          role="img"
-          aria-label="Vanilla"
-          style={{
-            width: size,
-            height: size,
-            flexShrink: 0,
-            opacity: opacity,
-            backgroundColor: color,
-            WebkitMaskImage: 'url(preview.svg)',
-            maskImage: 'url(preview.svg)',
-            // viewBox полного SVG: 7920 x 6120
-            // Область шевронов: x 500..2100, y 2100..4900 (то есть 1600 x 2800)
-            // Кадрирую через mask-size + mask-position
-            WebkitMaskSize: `${size * (7920 / 1600)}px ${size * (6120 / 2800)}px`,
-            maskSize: `${size * (7920 / 1600)}px ${size * (6120 / 2800)}px`,
-            WebkitMaskPosition: `-${size * (500 / 1600)}px -${size * (2100 / 2800)}px`,
-            maskPosition: `-${size * (500 / 1600)}px -${size * (2100 / 2800)}px`,
-            WebkitMaskRepeat: 'no-repeat',
-            maskRepeat: 'no-repeat',
-          }}
-        />
-      );
-    }
-
     // ═══ ICONS ════════════════════════════════════════════════════════
     const Icon = {
       Home: ({ size = 24, c = 'currentColor', fill = false }) => (
@@ -108,20 +80,19 @@
       User: ({ size = 24, c = 'currentColor', fill = false }) => (
         <svg width={size} height={size} viewBox="0 0 24 24" fill={fill ? c : 'none'} stroke={c} strokeWidth={fill ? 0 : 1.8} strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.5 3.5-7 8-7s8 2.5 8 7"/></svg>
       ),
-      Cup: ({ size = 24, variant = 'dark', opacity = 1 }) => {
+      Cup: ({ size = 24, variant = 'dark', opacity = 1, filled = false }) => {
         let color = V.coffee;
         if (variant === 'white')  color = '#FFFFFF';
         if (variant === 'orange') color = V.bright;
         if (variant === 'dark')   color = V.coffee;
-        return <VanillaChevrons size={size} color={color} opacity={opacity} />;
+        return (
+          <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" style={{ opacity, flexShrink: 0 }}>
+            <path d="M4 8h13v7a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V8Z" fill={filled ? color : 'none'}/>
+            <path d="M17 10h1.5a2.5 2.5 0 0 1 0 5H17"/>
+            <path d="M8 3c0 1-1 1.5-1 2.5S8 7 8 8M12 3c0 1-1 1.5-1 2.5S12 7 12 8"/>
+          </svg>
+        );
       },
-      CupCoffee: ({ size = 24, c = 'currentColor' }) => (
-        <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
-          <path d="M4 8h13v7a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V8Z"/>
-          <path d="M17 10h1.5a2.5 2.5 0 0 1 0 5H17"/>
-          <path d="M8 3c0 1-1 1.5-1 2.5S8 7 8 8M12 3c0 1-1 1.5-1 2.5S12 7 12 8"/>
-        </svg>
-      ),
       Croissant: ({ size = 24, c = 'currentColor' }) => (
         <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><path d="M4 14c2-6 8-8 14-6l-4 4 4 4c-6 2-12 0-14-2Z"/><path d="M8 12l3 3M12 10l3 3"/></svg>
       ),
@@ -348,8 +319,20 @@
             borderRadius: 28, padding: '22px 22px 20px', color: V.vanilla, border: 'none', cursor: 'pointer',
             textAlign: 'left', boxShadow: '0 12px 32px -12px rgba(74,55,40,0.5)', overflow: 'hidden',
           }}>
-            <div style={{ position: 'absolute', right: -20, top: -20, opacity: 0.12, pointerEvents: 'none' }}>
-              <VanillaChevrons size={140} color={V.vanilla} />
+            <div style={{ position: 'absolute', right: -30, top: -20, opacity: 0.12, pointerEvents: 'none' }}>
+              <div style={{
+                width: 160,
+                height: 160 * (6120 / 7920),
+                backgroundColor: V.vanilla,
+                WebkitMaskImage: 'url(preview.svg)',
+                maskImage: 'url(preview.svg)',
+                WebkitMaskSize: 'contain',
+                maskSize: 'contain',
+                WebkitMaskRepeat: 'no-repeat',
+                maskRepeat: 'no-repeat',
+                WebkitMaskPosition: 'center',
+                maskPosition: 'center',
+              }} />
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative' }}>
               <div>
@@ -407,7 +390,7 @@
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     overflow: 'hidden'
                   }}>
-                    <Icon.Cup size={filled ? 16 : 14} variant={iconVariant} opacity={(!filled && !isGoal) ? 0.35 : 1} />
+                    <Icon.Cup size={filled ? 18 : 16} variant={iconVariant} opacity={(!filled && !isGoal) ? 0.35 : 1} />
                   </div>
                 );
               })}
@@ -418,7 +401,7 @@
             <QuickAction label="Награды" sub="6 доступно" icon={<Icon.Gift size={22} c={V.bright}/>} bg={V.vanilla} onClick={() => onNavigate('rewards')} />
             <QuickAction label="Кофейни" sub="5 точек"    icon={<Icon.Pin  size={22} c={V.coffee}/>}  bg={V.pinkCream} onClick={onOpenShops} />
             <QuickAction label="История" sub="все операции" icon={<Icon.Clock size={22} c={V.coffee}/>} bg="#EFE5D3" onClick={onOpenHistory} />
-            <QuickAction label="Меню"    sub="60+ позиций"  icon={<Icon.CupCoffee size={22} c={V.bright} />}   bg="#FCE9DA" onClick={() => onNavigate('menu')} />
+            <QuickAction label="Меню"    sub="60+ позиций"  icon={<Icon.Cup size={22} variant="orange" />}   bg="#FCE9DA" onClick={() => onNavigate('menu')} />
           </div>
 
           <div>
@@ -539,7 +522,7 @@
         <div style={{ background: '#fff', borderRadius: 20, padding: 14, border: `1px solid ${V.line}`, display: 'flex', alignItems: 'center', gap: 14, opacity: canClaim ? 1 : 0.55 }}>
           <div style={{ width: 56, height: 56, borderRadius: 16, flexShrink: 0, background: `${reward.accent}22`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             {reward.icon === 'Cup'
-              ? <Icon.CupCoffee size={28} c={reward.accent} />
+              ? <Icon.Cup size={28} variant="orange" />
               : <IconComp size={28} c={reward.accent} />}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
@@ -814,7 +797,19 @@
             <rect x={size / 2 - 19} y={size / 2 - 19} width={38} height={38} rx={9} fill={V.coffee}/>
           </svg>
           <div style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <VanillaChevrons size={28} color="#FFFFFF" />
+            <div style={{
+              width: 28,
+              height: 28 * (6120 / 7920),
+              backgroundColor: '#FFFFFF',
+              WebkitMaskImage: 'url(preview.svg)',
+              maskImage: 'url(preview.svg)',
+              WebkitMaskSize: 'contain',
+              maskSize: 'contain',
+              WebkitMaskRepeat: 'no-repeat',
+              maskRepeat: 'no-repeat',
+              WebkitMaskPosition: 'center',
+              maskPosition: 'center',
+            }} />
           </div>
         </div>
       );
