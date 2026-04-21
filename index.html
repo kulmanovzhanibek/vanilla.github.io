@@ -41,7 +41,12 @@
           <img
             src="preview-2.png"
             alt="Vanilla Icon"
-            style={{ width: size * 1.6, height: size * 1.6, objectFit: 'contain' }}
+            style={{
+              width: size * 2.8,
+              height: size * 2.8,
+              objectFit: 'contain',
+              mixBlendMode: 'multiply',
+            }}
             onError={(e) => {
                e.target.onerror = null;
                e.target.src = "https://api.iconify.design/solar:cup-hot-bold.svg?color=%23FF6600";
