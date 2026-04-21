@@ -1,903 +1,930 @@
-import React, { useState, useEffect, useMemo, Fragment } from 'react';
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vanilla Coffee — Loyalty</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    html, body { margin: 0; padding: 0; }
+    body { font-family: 'Inter', -apple-system, system-ui, sans-serif; }
+    #root { min-height: 100vh; }
+  </style>
 
-// ═══ BRAND ════════════════════════════════════════════════════════
-const V = {
-  coffee: '#4A3728', coffeeDeep: '#2E1F15',
-  bright: '#FF6600', brightSoft: '#FF8533',
-  oat: '#D4AD8B', vanilla: '#FFF8E1', pinkCream: '#FADEDC',
-  flour: '#E5C468', glaze: '#F5B5B5',
-  ink: '#1A120B', paper: '#FAF4E8',
-  line: 'rgba(74,55,40,0.10)', mute: 'rgba(74,55,40,0.55)',
-};
+  <!-- React + Babel через CDN -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+  <div id="root"></div>
 
-// ═══ LOGOS (Only preview-2.png is used) ══════════════════════════
-function VanillaMark({ size = 22, textColor = V.ink }) {
-  return (
-    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}>
-      <img
-        src="preview-2.png"
-        alt="Vanilla Icon"
-        style={{ width: size * 1.6, height: size * 1.6, objectFit: 'contain' }}
-        onError={(e) => {
-           e.target.onerror = null;
-           e.target.src = "https://api.iconify.design/solar:cup-hot-bold.svg?color=%23FF6600";
-        }}
-      />
-    </div>
-  );
-}
+  <script type="text/babel" data-presets="react" data-type="module">
+    const { useState, useEffect, useMemo, Fragment } = React;
 
-// ═══ ICONS ════════════════════════════════════════════════════════
-const Icon = {
-  Home: ({ size = 24, c = 'currentColor', fill = false }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill={fill ? c : 'none'} stroke={c} strokeWidth={fill ? 0 : 1.8} strokeLinecap="round" strokeLinejoin="round"><path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-7h-6v7H4a1 1 0 0 1-1-1v-9.5Z"/></svg>
-  ),
-  Book: ({ size = 24, c = 'currentColor', fill = false }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill={fill ? c : 'none'} stroke={c} strokeWidth={fill ? 0 : 1.8} strokeLinecap="round" strokeLinejoin="round"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M8 7h8M8 11h8M8 15h5"/></svg>
-  ),
-  Gift: ({ size = 24, c = 'currentColor', fill = false }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill={fill ? c : 'none'} stroke={c} strokeWidth={fill ? 0 : 1.8} strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="8" width="18" height="5" rx="1"/><path d="M4 13v8h16v-8M12 8v13"/><path d="M12 8s-1.5-4-4-4a2 2 0 0 0 0 4h4ZM12 8s1.5-4 4-4a2 2 0 0 1 0 4h-4Z"/></svg>
-  ),
-  Clock: ({ size = 24, c = 'currentColor', fill = false }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill={fill ? c : 'none'} stroke={c} strokeWidth={fill ? 0 : 1.8} strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
-  ),
-  Pin: ({ size = 24, c = 'currentColor', fill = false }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill={fill ? c : 'none'} stroke={c} strokeWidth={fill ? 0 : 1.8} strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s7-7.5 7-13a7 7 0 1 0-14 0c0 5.5 7 13 7 13Z"/><circle cx="12" cy="9.5" r="2.5" fill={fill ? '#fff' : 'none'}/></svg>
-  ),
-  User: ({ size = 24, c = 'currentColor', fill = false }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill={fill ? c : 'none'} stroke={c} strokeWidth={fill ? 0 : 1.8} strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.5 3.5-7 8-7s8 2.5 8 7"/></svg>
-  ),
-  Cup: ({ size = 24 }) => (
-    <img
-      src="preview-2.png"
-      alt="Cup Icon"
-      style={{ width: size, height: size, objectFit: 'contain', flexShrink: 0 }}
-      onError={(e) => {
-        e.target.onerror = null;
-        e.target.src = "https://api.iconify.design/solar:cup-hot-bold.svg?color=%234A3728";
-      }}
-    />
-  ),
-  Croissant: ({ size = 24, c = 'currentColor' }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><path d="M4 14c2-6 8-8 14-6l-4 4 4 4c-6 2-12 0-14-2Z"/><path d="M8 12l3 3M12 10l3 3"/></svg>
-  ),
-  Cake: ({ size = 24, c = 'currentColor' }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><path d="M4 20h16v-7H4v7Z"/><path d="M4 16c2 1 3-1 5 0s3 1 5 0 3-1 5 0"/><path d="M12 4v4M12 4l-1.5-1.5M12 4l1.5-1.5"/><path d="M7 9v4M17 9v4"/></svg>
-  ),
-  Plate: ({ size = 24, c = 'currentColor' }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={1.8}><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/></svg>
-  ),
-  Bag: ({ size = 24, c = 'currentColor' }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><path d="M5 8h14l-1 13H6L5 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
-  ),
-  Bean: ({ size = 24, c = 'currentColor' }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="12" rx="6" ry="9" transform="rotate(30 12 12)"/><path d="M8 6c2 4 2 8 0 12" transform="rotate(30 12 12)"/></svg>
-  ),
-  Chevron: ({ size = 20, c = 'currentColor', dir = 'right' }) => {
-    const rot = { right: 0, left: 180, up: -90, down: 90 }[dir];
-    return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" style={{ transform: `rotate(${rot}deg)` }}><path d="M9 6l6 6-6 6"/></svg>;
-  },
-  Close: ({ size = 24, c = 'currentColor' }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={2} strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>,
-  Plus:  ({ size = 18, c = 'currentColor' }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={2.2} strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>,
-  Minus: ({ size = 18, c = 'currentColor' }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={2.2} strokeLinecap="round"><path d="M5 12h14"/></svg>,
-  Bell: ({ size = 22, c = 'currentColor' }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15L6 16Z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>,
-  Help: ({ size = 22, c = 'currentColor' }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-0.8 0.4-1 1-1 1.7M12 17v.01"/></svg>,
-  Info: ({ size = 22, c = 'currentColor' }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.01"/></svg>,
-  Route: ({ size = 18, c = 'currentColor' }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><circle cx="6" cy="5" r="2"/><circle cx="18" cy="19" r="2"/><path d="M8 5h6a4 4 0 0 1 0 8h-4a4 4 0 0 0 0 8h6"/></svg>,
-  Star: ({ size = 16, c = 'currentColor', fill = false }) => <svg width={size} height={size} viewBox="0 0 24 24" fill={fill ? c : 'none'} stroke={c} strokeWidth={1.8} strokeLinejoin="round"><path d="M12 3l2.6 5.6 6 0.6-4.5 4.2 1.3 6-5.4-3-5.4 3 1.3-6L3.4 9.2l6-0.6L12 3Z"/></svg>,
-  Spark: ({ size = 18, c = 'currentColor' }) => <svg width={size} height={size} viewBox="0 0 24 24" fill={c}><path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8L12 2Z"/></svg>,
-};
+    // ═══ BRAND ════════════════════════════════════════════════════════
+    const V = {
+      coffee: '#4A3728', coffeeDeep: '#2E1F15',
+      bright: '#FF6600', brightSoft: '#FF8533',
+      oat: '#D4AD8B', vanilla: '#FFF8E1', pinkCream: '#FADEDC',
+      flour: '#E5C468', glaze: '#F5B5B5',
+      ink: '#1A120B', paper: '#FAF4E8',
+      line: 'rgba(74,55,40,0.10)', mute: 'rgba(74,55,40,0.55)',
+    };
 
-// ═══ DATA ═════════════════════════════════════════════════════════
-const USER = { name: 'Жанибек', initial: 'Ж', level: 'Gold', bonuses: 485, cupsCollected: 7, cupsGoal: 10, bonusProgress: 485, bonusGoal: 500 };
+    // ═══ LOGOS ════════════════════════════════════════════════════════
+    function VanillaMark({ size = 22, textColor = V.ink }) {
+      return (
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}>
+          <img
+            src="preview-2.png"
+            alt="Vanilla Icon"
+            style={{ width: size * 1.6, height: size * 1.6, objectFit: 'contain' }}
+            onError={(e) => {
+               e.target.onerror = null;
+               e.target.src = "https://api.iconify.design/solar:cup-hot-bold.svg?color=%23FF6600";
+            }}
+          />
+        </div>
+      );
+    }
 
-const REWARDS = [
-  { id: 'coffee',  title: 'Кофе на выбор',   sub: 'Любой напиток до 0.4л',     cost: 200,  icon: 'Cup',       accent: '#FF6600' },
-  { id: 'crois',   title: 'Круассан',        sub: 'Классический или ореховый', cost: 150,  icon: 'Croissant', accent: '#E5C468' },
-  { id: 'dessert', title: 'Десерт дня',      sub: 'По выбору бариста',         cost: 350,  icon: 'Cake',      accent: '#F5B5B5' },
-  { id: 'brk',     title: 'Завтрак',         sub: 'Сет до 12:00',              cost: 500,  icon: 'Plate',     accent: '#D4AD8B' },
-  { id: 'merch',   title: 'Мерч Vanilla',    sub: 'Футболка или тоут',         cost: 800,  icon: 'Bag',       accent: '#4A3728' },
-  { id: 'bean',    title: '1 кг зерна',      sub: 'Обжарка недели',            cost: 1000, icon: 'Bean',      accent: '#2E1F15' },
-];
+    // ═══ ICONS ════════════════════════════════════════════════════════
+    const Icon = {
+      Home: ({ size = 24, c = 'currentColor', fill = false }) => (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill={fill ? c : 'none'} stroke={c} strokeWidth={fill ? 0 : 1.8} strokeLinecap="round" strokeLinejoin="round"><path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-7h-6v7H4a1 1 0 0 1-1-1v-9.5Z"/></svg>
+      ),
+      Book: ({ size = 24, c = 'currentColor', fill = false }) => (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill={fill ? c : 'none'} stroke={c} strokeWidth={fill ? 0 : 1.8} strokeLinecap="round" strokeLinejoin="round"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M8 7h8M8 11h8M8 15h5"/></svg>
+      ),
+      Gift: ({ size = 24, c = 'currentColor', fill = false }) => (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill={fill ? c : 'none'} stroke={c} strokeWidth={fill ? 0 : 1.8} strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="8" width="18" height="5" rx="1"/><path d="M4 13v8h16v-8M12 8v13"/><path d="M12 8s-1.5-4-4-4a2 2 0 0 0 0 4h4ZM12 8s1.5-4 4-4a2 2 0 0 1 0 4h-4Z"/></svg>
+      ),
+      Clock: ({ size = 24, c = 'currentColor', fill = false }) => (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill={fill ? c : 'none'} stroke={c} strokeWidth={fill ? 0 : 1.8} strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+      ),
+      Pin: ({ size = 24, c = 'currentColor', fill = false }) => (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill={fill ? c : 'none'} stroke={c} strokeWidth={fill ? 0 : 1.8} strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s7-7.5 7-13a7 7 0 1 0-14 0c0 5.5 7 13 7 13Z"/><circle cx="12" cy="9.5" r="2.5" fill={fill ? '#fff' : 'none'}/></svg>
+      ),
+      User: ({ size = 24, c = 'currentColor', fill = false }) => (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill={fill ? c : 'none'} stroke={c} strokeWidth={fill ? 0 : 1.8} strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.5 3.5-7 8-7s8 2.5 8 7"/></svg>
+      ),
+      Cup: ({ size = 24 }) => (
+        <img
+          src="preview-2.png"
+          alt="Cup Icon"
+          style={{ width: size, height: size, objectFit: 'contain', flexShrink: 0 }}
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src = "https://api.iconify.design/solar:cup-hot-bold.svg?color=%234A3728";
+          }}
+        />
+      ),
+      Croissant: ({ size = 24, c = 'currentColor' }) => (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><path d="M4 14c2-6 8-8 14-6l-4 4 4 4c-6 2-12 0-14-2Z"/><path d="M8 12l3 3M12 10l3 3"/></svg>
+      ),
+      Cake: ({ size = 24, c = 'currentColor' }) => (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><path d="M4 20h16v-7H4v7Z"/><path d="M4 16c2 1 3-1 5 0s3 1 5 0 3-1 5 0"/><path d="M12 4v4M12 4l-1.5-1.5M12 4l1.5-1.5"/><path d="M7 9v4M17 9v4"/></svg>
+      ),
+      Plate: ({ size = 24, c = 'currentColor' }) => (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={1.8}><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/></svg>
+      ),
+      Bag: ({ size = 24, c = 'currentColor' }) => (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><path d="M5 8h14l-1 13H6L5 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
+      ),
+      Bean: ({ size = 24, c = 'currentColor' }) => (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="12" rx="6" ry="9" transform="rotate(30 12 12)"/><path d="M8 6c2 4 2 8 0 12" transform="rotate(30 12 12)"/></svg>
+      ),
+      Chevron: ({ size = 20, c = 'currentColor', dir = 'right' }) => {
+        const rot = { right: 0, left: 180, up: -90, down: 90 }[dir];
+        return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" style={{ transform: `rotate(${rot}deg)` }}><path d="M9 6l6 6-6 6"/></svg>;
+      },
+      Close: ({ size = 24, c = 'currentColor' }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={2} strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>,
+      Plus:  ({ size = 18, c = 'currentColor' }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={2.2} strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>,
+      Minus: ({ size = 18, c = 'currentColor' }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={2.2} strokeLinecap="round"><path d="M5 12h14"/></svg>,
+      Bell: ({ size = 22, c = 'currentColor' }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15L6 16Z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>,
+      Help: ({ size = 22, c = 'currentColor' }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-0.8 0.4-1 1-1 1.7M12 17v.01"/></svg>,
+      Info: ({ size = 22, c = 'currentColor' }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.01"/></svg>,
+      Route: ({ size = 18, c = 'currentColor' }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><circle cx="6" cy="5" r="2"/><circle cx="18" cy="19" r="2"/><path d="M8 5h6a4 4 0 0 1 0 8h-4a4 4 0 0 0 0 8h6"/></svg>,
+      Star: ({ size = 16, c = 'currentColor', fill = false }) => <svg width={size} height={size} viewBox="0 0 24 24" fill={fill ? c : 'none'} stroke={c} strokeWidth={1.8} strokeLinejoin="round"><path d="M12 3l2.6 5.6 6 0.6-4.5 4.2 1.3 6-5.4-3-5.4 3 1.3-6L3.4 9.2l6-0.6L12 3Z"/></svg>,
+      Spark: ({ size = 18, c = 'currentColor' }) => <svg width={size} height={size} viewBox="0 0 24 24" fill={c}><path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8L12 2Z"/></svg>,
+    };
 
-const HISTORY = [
-  { id: 1, kind: '+', title: 'Капучино 0.3л',       shop: 'Ala Park',         date: 'Сегодня, 09:12',  amount: 45 },
-  { id: 2, kind: '+', title: 'Раф ванильный',       shop: 'Кунаева 130',      date: 'Вчера, 18:47',    amount: 38 },
-  { id: 3, kind: '-', title: 'Награда: Круассан',   shop: 'Ala Park',         date: '19 апр, 11:02',   amount: 150 },
-  { id: 4, kind: '+', title: 'Флэт уайт + чизкейк', shop: 'Макатаева 28/1',   date: '18 апр, 14:30',   amount: 72 },
-  { id: 5, kind: '+', title: 'Эспрессо двойной',    shop: 'Villa',            date: '17 апр, 08:15',   amount: 22 },
-  { id: 6, kind: '-', title: 'Награда: Кофе',       shop: 'Кабанбай батыра',  date: '14 апр, 10:44',   amount: 200 },
-  { id: 7, kind: '+', title: 'Латте + круассан',    shop: 'Кунаева 130',      date: '12 апр, 09:30',   amount: 56 },
-  { id: 8, kind: '+', title: 'Американо',           shop: 'Ala Park',         date: '10 апр, 07:58',   amount: 18 },
-  { id: 9, kind: '+', title: 'Раф + десерт',        shop: 'Villa',            date: '08 апр, 16:20',   amount: 84 },
-];
+    // ═══ DATA ═════════════════════════════════════════════════════════
+    const USER = { name: 'Жанибек', initial: 'Ж', level: 'Gold', bonuses: 485, cupsCollected: 7, cupsGoal: 10, bonusProgress: 485, bonusGoal: 500 };
 
-const SHOPS = [
-  { id: 'ala',   name: 'Ala Park',        addr: 'ТРЦ Ala Park, Саина 14', hours: '08:00–23:00', dist: '1.2 км', open: true, flagship: true },
-  { id: 'kun',   name: 'Кунаева 130',     addr: 'Кунаева 130',            hours: '07:30–22:00', dist: '2.4 км', open: true },
-  { id: 'kab',   name: 'Кабанбай батыра', addr: 'Кабанбай батыра 65',     hours: '08:00–22:00', dist: '3.1 км', open: true },
-  { id: 'mak',   name: 'Макатаева 28/1',  addr: 'Макатаева 28/1',         hours: '08:00–21:00', dist: '4.0 км', open: true },
-  { id: 'villa', name: 'Villa',           addr: 'Аль-Фараби 140А/3',      hours: '09:00–23:00', dist: '5.7 км', open: false, flagship: true },
-];
+    const REWARDS = [
+      { id: 'coffee',  title: 'Кофе на выбор',   sub: 'Любой напиток до 0.4л',     cost: 200,  icon: 'Cup',       accent: '#FF6600' },
+      { id: 'crois',   title: 'Круассан',        sub: 'Классический или ореховый', cost: 150,  icon: 'Croissant', accent: '#E5C468' },
+      { id: 'dessert', title: 'Десерт дня',      sub: 'По выбору бариста',         cost: 350,  icon: 'Cake',      accent: '#F5B5B5' },
+      { id: 'brk',     title: 'Завтрак',         sub: 'Сет до 12:00',              cost: 500,  icon: 'Plate',     accent: '#D4AD8B' },
+      { id: 'merch',   title: 'Мерч Vanilla',    sub: 'Футболка или тоут',         cost: 800,  icon: 'Bag',       accent: '#4A3728' },
+      { id: 'bean',    title: '1 кг зерна',      sub: 'Обжарка недели',            cost: 1000, icon: 'Bean',      accent: '#2E1F15' },
+    ];
 
-const STATS = { earned: 2840, spent: 1950, visits: 64, favorite: 'Кунаева 130', joined: 'октябрь 2024' };
+    const HISTORY = [
+      { id: 1, kind: '+', title: 'Капучино 0.3л',       shop: 'Ala Park',         date: 'Сегодня, 09:12',  amount: 45 },
+      { id: 2, kind: '+', title: 'Раф ванильный',       shop: 'Кунаева 130',      date: 'Вчера, 18:47',    amount: 38 },
+      { id: 3, kind: '-', title: 'Награда: Круассан',   shop: 'Ala Park',         date: '19 апр, 11:02',   amount: 150 },
+      { id: 4, kind: '+', title: 'Флэт уайт + чизкейк', shop: 'Макатаева 28/1',   date: '18 апр, 14:30',   amount: 72 },
+      { id: 5, kind: '+', title: 'Эспрессо двойной',    shop: 'Villa',            date: '17 апр, 08:15',   amount: 22 },
+      { id: 6, kind: '-', title: 'Награда: Кофе',       shop: 'Кабанбай батыра',  date: '14 апр, 10:44',   amount: 200 },
+      { id: 7, kind: '+', title: 'Латте + круассан',    shop: 'Кунаева 130',      date: '12 апр, 09:30',   amount: 56 },
+      { id: 8, kind: '+', title: 'Американо',           shop: 'Ala Park',         date: '10 апр, 07:58',   amount: 18 },
+      { id: 9, kind: '+', title: 'Раф + десерт',        shop: 'Villa',            date: '08 апр, 16:20',   amount: 84 },
+    ];
 
-const MENU_SHOPS = [
-  { id: 'ala',  name: 'Ala Park' },
-  { id: 'kun',  name: 'Кунаева 130' },
-  { id: 'kab',  name: 'Кабанбай батыра 65' },
-  { id: 'gag',  name: 'Гагарина' },
-  { id: 'az',   name: 'Azerbayev 67' },
-];
-const CATEGORIES = ['Кофе','Матча','Чай','Завтраки','Салаты','Супы','Паста','Горячее','Выпечка'];
-const MENU = {
-  'Кофе': [
-    { name: 'Эспрессо / Доппио',  desc: '30 / 60 мл',  price: '1 000' },
-    { name: 'Американо',          desc: '200 / 300 / 400 мл', price: '1 000 / 1 100 / 1 200' },
-    { name: 'Капучино',           desc: '200 / 300 / 400 мл', price: '1 300 / 1 400 / 1 500' },
-    { name: 'Латте',              desc: '300 / 400 мл', price: '1 400 / 1 500' },
-    { name: 'Флэт Уайт',          desc: '200 мл', price: '1 300' },
-    { name: 'Бариста Сет',        desc: 'эспрессо, капучино, фильтр', price: '2 500' },
-    { name: 'Раф',                desc: '400 мл · ваниль / цитрус / иримшик / попкорн', price: '2 200' },
-    { name: 'Бамбл Кофе',         desc: '400 мл', price: '2 500' },
-    { name: 'Эспрессо Тоник',     desc: '400 мл', price: '2 300' },
-    { name: 'Batch Brew',         desc: '300 мл', price: '1 000' },
-  ],
-  'Матча': [
-    { name: 'Матча шот',       desc: '40 мл',  price: '2 400' },
-    { name: 'Матча Американо', desc: '300 мл', price: '1 900' },
-    { name: 'Матча Латте',     desc: '200 / 300 / 400 мл', price: '1 700 / 1 900 / 2 300' },
-    { name: 'Ходзича шот',     desc: '40 мл',  price: '1 600' },
-    { name: 'Ходзича Американо', desc: '300 мл', price: '1 400' },
-    { name: 'Ходзича Латте',   desc: '200 / 300 / 400 мл', price: '1 500 / 1 700 / 1 900' },
-  ],
-  'Чай': [
-    { name: 'Чай',                  desc: '500 мл · Ромашка / Ассам / Сенча / Жасмин / Молочный Улун / Эрл Грей', price: '1 400' },
-    { name: 'Авторский чай',        desc: '500 мл', price: '1 600' },
-    { name: 'Какао Эквадор Каллари', desc: '200 / 300 / 400 мл', price: '1 500 / 1 900 / 2 300' },
-  ],
-  'Завтраки': [
-    { name: 'Омлет',                  desc: 'брокколи / пастрами / лосось', price: '2 800 / 3 000 / 3 600' },
-    { name: 'Гречотто',               desc: '', price: '2 300' },
-    { name: 'Шакшука',                desc: '', price: '3 600' },
-    { name: 'Коллагеновый завтрак',   desc: '', price: '3 200' },
-    { name: 'Завтрак из 3-х яиц',     desc: '', price: '3 900' },
-    { name: 'Восточный завтрак',      desc: '', price: '3 900' },
-    { name: 'Сытный завтрак',         desc: '', price: '3 900' },
-    { name: 'Завтрак марафонца',      desc: '', price: '4 200' },
-    { name: 'Американский завтрак',   desc: '', price: '3 900' },
-  ],
-  'Салаты': [
-    { name: 'Зелёный салат',            desc: '', price: '3 200' },
-    { name: 'Тёплый салат с индейкой',  desc: '', price: '3 300' },
-    { name: 'Греческий салат',          desc: '', price: '3 200' },
-  ],
-  'Супы': [
-    { name: 'Суп лапша с фрикадельками', desc: '', price: '2 800' },
-    { name: 'Чечевичный крем-суп',       desc: '', price: '2 800' },
-  ],
-  'Паста': [
-    { name: 'Вареники с картофелем',       desc: '', price: '2 700' },
-    { name: 'Пельмени',                    desc: '', price: '2 800' },
-    { name: 'Равиоли со шпинатом',         desc: '', price: '3 000' },
-    { name: 'Фреш-паста с курицей и грибами', desc: '', price: '3 500' },
-    { name: 'Фреш-паста с пастрами',       desc: '', price: '3 700' },
-    { name: 'Фреш-паста с лосося',         desc: '', price: '3 900' },
-    { name: 'Фреш-паста с говядиной',      desc: '', price: '4 200' },
-  ],
-  'Горячее': [
-    { name: 'Куриное бедро Су-вид', desc: '', price: '3 800' },
-    { name: 'Куриные котлеты',      desc: '', price: '3 600' },
-    { name: 'Стейк из лосося',      desc: '', price: '5 900' },
-    { name: 'Говяжьи щечки',        desc: '', price: '4 800' },
-  ],
-  'Выпечка': [
-    { name: 'Каша',    desc: 'овсяная / рисовая',           price: '2 000 / 2 300' },
-    { name: 'Йогурт',  desc: '',                             price: '3 200' },
-    { name: 'Панкейки',desc: '',                             price: '3 000' },
-    { name: 'Сырники', desc: 'классические / с иримшиком',  price: '2 600 / 2 900' },
-    { name: 'Блины',   desc: 'домашние / с лососем',        price: '1 700 / 2 900' },
-  ],
-};
-const BREAKFAST_NOTE = 'К завтраку — фильтр-кофе или чай (Ассам/Сенча)';
+    const SHOPS = [
+      { id: 'ala',   name: 'Ala Park',        addr: 'ТРЦ Ala Park, Саина 14', hours: '08:00–23:00', dist: '1.2 км', open: true, flagship: true },
+      { id: 'kun',   name: 'Кунаева 130',     addr: 'Кунаева 130',            hours: '07:30–22:00', dist: '2.4 км', open: true },
+      { id: 'kab',   name: 'Кабанбай батыра', addr: 'Кабанбай батыра 65',     hours: '08:00–22:00', dist: '3.1 км', open: true },
+      { id: 'mak',   name: 'Макатаева 28/1',  addr: 'Макатаева 28/1',         hours: '08:00–21:00', dist: '4.0 км', open: true },
+      { id: 'villa', name: 'Villa',           addr: 'Аль-Фараби 140А/3',      hours: '09:00–23:00', dist: '5.7 км', open: false, flagship: true },
+    ];
 
-// ═══ SHARED ═══════════════════════════════════════════════════════
-function PageHeader({ title, sub, right }) {
-  return (
-    <div style={{ paddingTop: 4, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 32, fontWeight: 800, color: V.ink, letterSpacing: '-0.03em', lineHeight: 1 }}>{title}</div>
-        {sub && <div style={{ fontSize: 13, color: V.mute, marginTop: 6 }}>{sub}</div>}
-      </div>
-      {right}
-    </div>
-  );
-}
+    const STATS = { earned: 2840, spent: 1950, visits: 64, favorite: 'Кунаева 130', joined: 'октябрь 2024' };
 
-function HistoryRow({ op, last }) {
-  const isEarn = op.kind === '+';
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', borderBottom: last ? 'none' : `1px solid ${V.line}` }}>
-      <div style={{ width: 38, height: 38, borderRadius: 12, background: isEarn ? 'rgba(76,175,80,0.1)' : 'rgba(255,102,0,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-        {isEarn ? <Icon.Plus size={16} c="#2E7D32"/> : <Icon.Minus size={16} c={V.bright}/>}
-      </div>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 14, fontWeight: 600, color: V.ink, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{op.title}</div>
-        <div style={{ fontSize: 12, color: V.mute, marginTop: 2 }}>{op.shop} · {op.date}</div>
-      </div>
-      <div style={{ fontSize: 15, fontWeight: 700, color: isEarn ? '#2E7D32' : V.bright, fontVariantNumeric: 'tabular-nums' }}>
-        {isEarn ? '+' : '−'}{op.amount}
-      </div>
-    </div>
-  );
-}
+    const MENU_SHOPS = [
+      { id: 'ala',  name: 'Ala Park' },
+      { id: 'kun',  name: 'Кунаева 130' },
+      { id: 'kab',  name: 'Кабанбай батыра 65' },
+      { id: 'gag',  name: 'Гагарина' },
+      { id: 'az',   name: 'Azerbayev 67' },
+    ];
+    const CATEGORIES = ['Кофе','Матча','Чай','Завтраки','Салаты','Супы','Паста','Горячее','Выпечка'];
+    const MENU = {
+      'Кофе': [
+        { name: 'Эспрессо / Доппио',  desc: '30 / 60 мл',  price: '1 000' },
+        { name: 'Американо',          desc: '200 / 300 / 400 мл', price: '1 000 / 1 100 / 1 200' },
+        { name: 'Капучино',           desc: '200 / 300 / 400 мл', price: '1 300 / 1 400 / 1 500' },
+        { name: 'Латте',              desc: '300 / 400 мл', price: '1 400 / 1 500' },
+        { name: 'Флэт Уайт',          desc: '200 мл', price: '1 300' },
+        { name: 'Бариста Сет',        desc: 'эспрессо, капучино, фильтр', price: '2 500' },
+        { name: 'Раф',                desc: '400 мл · ваниль / цитрус / иримшик / попкорн', price: '2 200' },
+        { name: 'Бамбл Кофе',         desc: '400 мл', price: '2 500' },
+        { name: 'Эспрессо Тоник',     desc: '400 мл', price: '2 300' },
+        { name: 'Batch Brew',         desc: '300 мл', price: '1 000' },
+      ],
+      'Матча': [
+        { name: 'Матча шот',       desc: '40 мл',  price: '2 400' },
+        { name: 'Матча Американо', desc: '300 мл', price: '1 900' },
+        { name: 'Матча Латте',     desc: '200 / 300 / 400 мл', price: '1 700 / 1 900 / 2 300' },
+        { name: 'Ходзича шот',     desc: '40 мл',  price: '1 600' },
+        { name: 'Ходзича Американо', desc: '300 мл', price: '1 400' },
+        { name: 'Ходзича Латте',   desc: '200 / 300 / 400 мл', price: '1 500 / 1 700 / 1 900' },
+      ],
+      'Чай': [
+        { name: 'Чай',                  desc: '500 мл · Ромашка / Ассам / Сенча / Жасмин / Молочный Улун / Эрл Грей', price: '1 400' },
+        { name: 'Авторский чай',        desc: '500 мл', price: '1 600' },
+        { name: 'Какао Эквадор Каллари', desc: '200 / 300 / 400 мл', price: '1 500 / 1 900 / 2 300' },
+      ],
+      'Завтраки': [
+        { name: 'Омлет',                  desc: 'брокколи / пастрами / лосось', price: '2 800 / 3 000 / 3 600' },
+        { name: 'Гречотто',               desc: '', price: '2 300' },
+        { name: 'Шакшука',                desc: '', price: '3 600' },
+        { name: 'Коллагеновый завтрак',   desc: '', price: '3 200' },
+        { name: 'Завтрак из 3-х яиц',     desc: '', price: '3 900' },
+        { name: 'Восточный завтрак',      desc: '', price: '3 900' },
+        { name: 'Сытный завтрак',         desc: '', price: '3 900' },
+        { name: 'Завтрак марафонца',      desc: '', price: '4 200' },
+        { name: 'Американский завтрак',   desc: '', price: '3 900' },
+      ],
+      'Салаты': [
+        { name: 'Зелёный салат',            desc: '', price: '3 200' },
+        { name: 'Тёплый салат с индейкой',  desc: '', price: '3 300' },
+        { name: 'Греческий салат',          desc: '', price: '3 200' },
+      ],
+      'Супы': [
+        { name: 'Суп лапша с фрикадельками', desc: '', price: '2 800' },
+        { name: 'Чечевичный крем-суп',       desc: '', price: '2 800' },
+      ],
+      'Паста': [
+        { name: 'Вареники с картофелем',       desc: '', price: '2 700' },
+        { name: 'Пельмени',                    desc: '', price: '2 800' },
+        { name: 'Равиоли со шпинатом',         desc: '', price: '3 000' },
+        { name: 'Фреш-паста с курицей и грибами', desc: '', price: '3 500' },
+        { name: 'Фреш-паста с пастрами',       desc: '', price: '3 700' },
+        { name: 'Фреш-паста с лосося',         desc: '', price: '3 900' },
+        { name: 'Фреш-паста с говядиной',      desc: '', price: '4 200' },
+      ],
+      'Горячее': [
+        { name: 'Куриное бедро Су-вид', desc: '', price: '3 800' },
+        { name: 'Куриные котлеты',      desc: '', price: '3 600' },
+        { name: 'Стейк из лосося',      desc: '', price: '5 900' },
+        { name: 'Говяжьи щечки',        desc: '', price: '4 800' },
+      ],
+      'Выпечка': [
+        { name: 'Каша',    desc: 'овсяная / рисовая',           price: '2 000 / 2 300' },
+        { name: 'Йогурт',  desc: '',                             price: '3 200' },
+        { name: 'Панкейки',desc: '',                             price: '3 000' },
+        { name: 'Сырники', desc: 'классические / с иримшиком',  price: '2 600 / 2 900' },
+        { name: 'Блины',   desc: 'домашние / с лососем',        price: '1 700 / 2 900' },
+      ],
+    };
+    const BREAKFAST_NOTE = 'К завтраку — фильтр-кофе или чай (Ассам/Сенча)';
 
-function QRMini() {
-  return (
-    <svg width={18} height={18} viewBox="0 0 18 18" fill="none">
-      <rect x="1" y="1" width="6" height="6" stroke="#FFF8E1" strokeWidth="1.5"/>
-      <rect x="11" y="1" width="6" height="6" stroke="#FFF8E1" strokeWidth="1.5"/>
-      <rect x="1" y="11" width="6" height="6" stroke="#FFF8E1" strokeWidth="1.5"/>
-      <rect x="3" y="3" width="2" height="2" fill="#FFF8E1"/>
-      <rect x="13" y="3" width="2" height="2" fill="#FFF8E1"/>
-      <rect x="3" y="13" width="2" height="2" fill="#FFF8E1"/>
-      <rect x="10" y="10" width="2" height="2" fill="#FFF8E1"/>
-      <rect x="14" y="14" width="2" height="2" fill="#FFF8E1"/>
-      <rect x="10" y="14" width="2" height="2" fill="#FFF8E1"/>
-    </svg>
-  );
-}
+    // ═══ SHARED ═══════════════════════════════════════════════════════
+    function PageHeader({ title, sub, right }) {
+      return (
+        <div style={{ paddingTop: 4, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 32, fontWeight: 800, color: V.ink, letterSpacing: '-0.03em', lineHeight: 1 }}>{title}</div>
+            {sub && <div style={{ fontSize: 13, color: V.mute, marginTop: 6 }}>{sub}</div>}
+          </div>
+          {right}
+        </div>
+      );
+    }
 
-function QuickAction({ label, sub, icon, bg, onClick }) {
-  return (
-    <button onClick={onClick} className="press" style={{ background: bg, border: 'none', borderRadius: 20, padding: '16px 16px 18px', textAlign: 'left', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: 18 }}>
-      <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(255,255,255,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{icon}</div>
-      <div>
-        <div style={{ fontSize: 16, fontWeight: 700, color: V.ink, letterSpacing: '-0.01em' }}>{label}</div>
-        <div style={{ fontSize: 12, color: V.mute, marginTop: 2 }}>{sub}</div>
-      </div>
-    </button>
-  );
-}
-
-// ═══ HOME ═════════════════════════════════════════════════════════
-function HomeScreen({ onOpenQR, onNavigate, onOpenShops, onOpenHistory }) {
-  const bonusPct = (USER.bonusProgress / USER.bonusGoal) * 100;
-  return (
-    <div style={{ padding: '0 20px 24px', display: 'flex', flexDirection: 'column', gap: 20 }}>
-      <div style={{ paddingTop: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-          {/* ОБНОВЛЕНО: Используется VanillaMark с фоном и preview-2.webp */}
-          <VanillaMark size={22} />
-          <div>
-            <div style={{ fontSize: 12, color: V.mute, fontWeight: 600, letterSpacing: '0.04em' }}>ДОБРО ПОЖАЛОВАТЬ</div>
-            <div style={{ fontSize: 28, fontWeight: 800, color: V.ink, letterSpacing: '-0.02em', marginTop: 4, lineHeight: 1.1 }}>{USER.name}</div>
+    function HistoryRow({ op, last }) {
+      const isEarn = op.kind === '+';
+      return (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', borderBottom: last ? 'none' : `1px solid ${V.line}` }}>
+          <div style={{ width: 38, height: 38, borderRadius: 12, background: isEarn ? 'rgba(76,175,80,0.1)' : 'rgba(255,102,0,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            {isEarn ? <Icon.Plus size={16} c="#2E7D32"/> : <Icon.Minus size={16} c={V.bright}/>}
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, color: V.ink, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{op.title}</div>
+            <div style={{ fontSize: 12, color: V.mute, marginTop: 2 }}>{op.shop} · {op.date}</div>
+          </div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: isEarn ? '#2E7D32' : V.bright, fontVariantNumeric: 'tabular-nums' }}>
+            {isEarn ? '+' : '−'}{op.amount}
           </div>
         </div>
-        <button className="press" style={{ position: 'relative', background: '#fff', border: `1px solid ${V.line}`, width: 42, height: 42, borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-          <Icon.Bell c={V.coffee}/>
-          <span style={{ position: 'absolute', top: 9, right: 10, width: 8, height: 8, borderRadius: 999, background: V.bright, border: '2px solid #fff' }}/>
-        </button>
-      </div>
+      );
+    }
 
-      <button onClick={onOpenQR} className="press" style={{
-        position: 'relative', background: `linear-gradient(135deg, ${V.coffee} 0%, ${V.coffeeDeep} 100%)`,
-        borderRadius: 28, padding: '22px 22px 20px', color: V.vanilla, border: 'none', cursor: 'pointer',
-        textAlign: 'left', boxShadow: '0 12px 32px -12px rgba(74,55,40,0.5)', overflow: 'hidden',
-      }}>
-        <div style={{ position: 'absolute', right: -20, top: -20, opacity: 0.1 }}>
-          <img src="preview-2.png" alt="" style={{ width: 140, height: 140 }} />
-        </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative' }}>
+    function QRMini() {
+      return (
+        <svg width={18} height={18} viewBox="0 0 18 18" fill="none">
+          <rect x="1" y="1" width="6" height="6" stroke="#FFF8E1" strokeWidth="1.5"/>
+          <rect x="11" y="1" width="6" height="6" stroke="#FFF8E1" strokeWidth="1.5"/>
+          <rect x="1" y="11" width="6" height="6" stroke="#FFF8E1" strokeWidth="1.5"/>
+          <rect x="3" y="3" width="2" height="2" fill="#FFF8E1"/>
+          <rect x="13" y="3" width="2" height="2" fill="#FFF8E1"/>
+          <rect x="3" y="13" width="2" height="2" fill="#FFF8E1"/>
+          <rect x="10" y="10" width="2" height="2" fill="#FFF8E1"/>
+          <rect x="14" y="14" width="2" height="2" fill="#FFF8E1"/>
+          <rect x="10" y="14" width="2" height="2" fill="#FFF8E1"/>
+        </svg>
+      );
+    }
+
+    function QuickAction({ label, sub, icon, bg, onClick }) {
+      return (
+        <button onClick={onClick} className="press" style={{ background: bg, border: 'none', borderRadius: 20, padding: '16px 16px 18px', textAlign: 'left', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: 18 }}>
+          <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(255,255,255,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{icon}</div>
           <div>
-            <div style={{ fontSize: 12, opacity: 0.7, letterSpacing: '0.08em', fontWeight: 600 }}>VANILLA CLUB</div>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: V.bright, color: '#fff', padding: '4px 10px', borderRadius: 999, fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', marginTop: 10 }}>
-              <Icon.Star size={11} fill c="#fff" /> GOLD УРОВЕНЬ
+            <div style={{ fontSize: 16, fontWeight: 700, color: V.ink, letterSpacing: '-0.01em' }}>{label}</div>
+            <div style={{ fontSize: 12, color: V.mute, marginTop: 2 }}>{sub}</div>
+          </div>
+        </button>
+      );
+    }
+
+    // ═══ HOME ═════════════════════════════════════════════════════════
+    function HomeScreen({ onOpenQR, onNavigate, onOpenShops, onOpenHistory }) {
+      const bonusPct = (USER.bonusProgress / USER.bonusGoal) * 100;
+      return (
+        <div style={{ padding: '0 20px 24px', display: 'flex', flexDirection: 'column', gap: 20 }}>
+          <div style={{ paddingTop: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+              <VanillaMark size={22} />
+              <div>
+                <div style={{ fontSize: 12, color: V.mute, fontWeight: 600, letterSpacing: '0.04em' }}>ДОБРО ПОЖАЛОВАТЬ</div>
+                <div style={{ fontSize: 28, fontWeight: 800, color: V.ink, letterSpacing: '-0.02em', marginTop: 4, lineHeight: 1.1 }}>{USER.name}</div>
+              </div>
+            </div>
+            <button className="press" style={{ position: 'relative', background: '#fff', border: `1px solid ${V.line}`, width: 42, height: 42, borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+              <Icon.Bell c={V.coffee}/>
+              <span style={{ position: 'absolute', top: 9, right: 10, width: 8, height: 8, borderRadius: 999, background: V.bright, border: '2px solid #fff' }}/>
+            </button>
+          </div>
+
+          <button onClick={onOpenQR} className="press" style={{
+            position: 'relative', background: `linear-gradient(135deg, ${V.coffee} 0%, ${V.coffeeDeep} 100%)`,
+            borderRadius: 28, padding: '22px 22px 20px', color: V.vanilla, border: 'none', cursor: 'pointer',
+            textAlign: 'left', boxShadow: '0 12px 32px -12px rgba(74,55,40,0.5)', overflow: 'hidden',
+          }}>
+            <div style={{ position: 'absolute', right: -20, top: -20, opacity: 0.1 }}>
+              <img src="preview-2.png" alt="" style={{ width: 140, height: 140 }} />
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative' }}>
+              <div>
+                <div style={{ fontSize: 12, opacity: 0.7, letterSpacing: '0.08em', fontWeight: 600 }}>VANILLA CLUB</div>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: V.bright, color: '#fff', padding: '4px 10px', borderRadius: 999, fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', marginTop: 10 }}>
+                  <Icon.Star size={11} fill c="#fff" /> GOLD УРОВЕНЬ
+                </div>
+              </div>
+              <div style={{ width: 36, height: 36, borderRadius: 12, background: 'rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.15)' }}>
+                <QRMini />
+              </div>
+            </div>
+            <div style={{ marginTop: 22, display: 'flex', alignItems: 'baseline', gap: 8, position: 'relative' }}>
+              <span style={{ fontSize: 56, fontWeight: 800, letterSpacing: '-0.04em', lineHeight: 1 }}>{USER.bonuses}</span>
+              <span style={{ fontSize: 15, opacity: 0.7 }}>бонусов</span>
+            </div>
+            <div style={{ marginTop: 18, position: 'relative' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, opacity: 0.75, marginBottom: 8 }}>
+                <span>до бесплатного кофе</span>
+                <span style={{ fontWeight: 600, opacity: 1 }}>{USER.bonusGoal - USER.bonusProgress} б.</span>
+              </div>
+              <div style={{ height: 6, background: 'rgba(255,255,255,0.12)', borderRadius: 999, overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: `${bonusPct}%`, background: `linear-gradient(90deg, ${V.bright}, ${V.brightSoft})`, borderRadius: 999 }} />
+              </div>
+            </div>
+            <div style={{ marginTop: 16, fontSize: 12, opacity: 0.65, display: 'flex', alignItems: 'center', gap: 6, position: 'relative' }}>
+              Нажмите для показа QR-кода <Icon.Chevron size={12} c={V.vanilla} />
+            </div>
+          </button>
+
+          <div style={{ background: '#fff', borderRadius: 24, padding: '18px 20px', border: `1px solid ${V.line}` }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+              <div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: V.ink }}>10-й кофе бесплатно</div>
+                <div style={{ fontSize: 12, color: V.mute, marginTop: 2 }}>Собрано <b style={{ color: V.coffee }}>{USER.cupsCollected}</b> из {USER.cupsGoal}</div>
+              </div>
+              <div style={{ background: V.vanilla, borderRadius: 12, padding: '6px 10px', fontSize: 12, fontWeight: 700, color: V.coffee }}>
+                +{USER.cupsGoal - USER.cupsCollected} до награды
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 6, justifyContent: 'space-between' }}>
+              {Array.from({ length: USER.cupsGoal }).map((_, i) => {
+                const filled = i < USER.cupsCollected;
+                const isGoal = i === USER.cupsGoal - 1;
+                return (
+                  <div key={i} style={{
+                    flex: 1, aspectRatio: '1', borderRadius: '50%',
+                    background: filled ? V.coffee : (isGoal ? 'transparent' : V.paper),
+                    border: isGoal && !filled ? `2px dashed ${V.bright}` : `1px solid ${V.line}`,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    overflow: 'hidden'
+                  }}>
+                    {filled && <Icon.Cup size={16} />}
+                    {!filled && isGoal && <Icon.Cup size={14} c={V.bright} />}
+                  </div>
+                );
+              })}
             </div>
           </div>
-          <div style={{ width: 36, height: 36, borderRadius: 12, background: 'rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.15)' }}>
-            <QRMini />
-          </div>
-        </div>
-        <div style={{ marginTop: 22, display: 'flex', alignItems: 'baseline', gap: 8, position: 'relative' }}>
-          <span style={{ fontSize: 56, fontWeight: 800, letterSpacing: '-0.04em', lineHeight: 1 }}>{USER.bonuses}</span>
-          <span style={{ fontSize: 15, opacity: 0.7 }}>бонусов</span>
-        </div>
-        <div style={{ marginTop: 18, position: 'relative' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, opacity: 0.75, marginBottom: 8 }}>
-            <span>до бесплатного кофе</span>
-            <span style={{ fontWeight: 600, opacity: 1 }}>{USER.bonusGoal - USER.bonusProgress} б.</span>
-          </div>
-          <div style={{ height: 6, background: 'rgba(255,255,255,0.12)', borderRadius: 999, overflow: 'hidden' }}>
-            <div style={{ height: '100%', width: `${bonusPct}%`, background: `linear-gradient(90deg, ${V.bright}, ${V.brightSoft})`, borderRadius: 999 }} />
-          </div>
-        </div>
-        <div style={{ marginTop: 16, fontSize: 12, opacity: 0.65, display: 'flex', alignItems: 'center', gap: 6, position: 'relative' }}>
-          Нажмите для показа QR-кода <Icon.Chevron size={12} c={V.vanilla} />
-        </div>
-      </button>
 
-      <div style={{ background: '#fff', borderRadius: 24, padding: '18px 20px', border: `1px solid ${V.line}` }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-          <div>
-            <div style={{ fontSize: 15, fontWeight: 700, color: V.ink }}>10-й кофе бесплатно</div>
-            <div style={{ fontSize: 12, color: V.mute, marginTop: 2 }}>Собрано <b style={{ color: V.coffee }}>{USER.cupsCollected}</b> из {USER.cupsGoal}</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <QuickAction label="Награды" sub="6 доступно" icon={<Icon.Gift size={22} c={V.bright}/>} bg={V.vanilla} onClick={() => onNavigate('rewards')} />
+            <QuickAction label="Кофейни" sub="5 точек"    icon={<Icon.Pin  size={22} c={V.coffee}/>}  bg={V.pinkCream} onClick={onOpenShops} />
+            <QuickAction label="История" sub="все операции" icon={<Icon.Clock size={22} c={V.coffee}/>} bg="#EFE5D3" onClick={onOpenHistory} />
+            <QuickAction label="Меню"    sub="60+ позиций"  icon={<Icon.Cup size={22} c={V.bright}/>}   bg="#FCE9DA" onClick={() => onNavigate('menu')} />
           </div>
-          <div style={{ background: V.vanilla, borderRadius: 12, padding: '6px 10px', fontSize: 12, fontWeight: 700, color: V.coffee }}>
-            +{USER.cupsGoal - USER.cupsCollected} до награды
+
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, padding: '0 4px' }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: V.ink }}>Последние операции</div>
+              <button onClick={onOpenHistory} style={{ background: 'none', border: 'none', color: V.bright, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Все →</button>
+            </div>
+            <div style={{ background: '#fff', borderRadius: 20, border: `1px solid ${V.line}`, overflow: 'hidden' }}>
+              {HISTORY.slice(0, 3).map((op, i) => <HistoryRow key={op.id} op={op} last={i === 2} />)}
+            </div>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: 6, justifyContent: 'space-between' }}>
-          {Array.from({ length: USER.cupsGoal }).map((_, i) => {
-            const filled = i < USER.cupsCollected;
-            const isGoal = i === USER.cupsGoal - 1;
-            return (
-              <div key={i} style={{
-                flex: 1, aspectRatio: '1', borderRadius: '50%',
-                background: filled ? V.coffee : (isGoal ? 'transparent' : V.paper),
-                border: isGoal && !filled ? `2px dashed ${V.bright}` : `1px solid ${V.line}`,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                overflow: 'hidden'
-              }}>
-                {filled && <Icon.Cup size={16} />}
-                {!filled && isGoal && <Icon.Cup size={14} c={V.bright} />}
+      );
+    }
+
+    // ═══ MENU ═════════════════════════════════════════════════════════
+    function MenuScreen() {
+      const [shop, setShop] = useState(MENU_SHOPS[0].id);
+      const [cat, setCat] = useState(CATEGORIES[0]);
+      const [shopOpen, setShopOpen] = useState(false);
+      const items = MENU[cat] || [];
+
+      return (
+        <div style={{ paddingBottom: 24 }}>
+          <div style={{ padding: '0 20px 14px' }}>
+            <PageHeader title="Меню" sub="Актуальные позиции кофейни" />
+          </div>
+          <div style={{ padding: '0 20px 14px' }}>
+            <button onClick={() => setShopOpen(s => !s)} className="press" style={{
+              width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              background: '#fff', border: `1px solid ${V.line}`, borderRadius: 16,
+              padding: '12px 14px', cursor: 'pointer', textAlign: 'left',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div style={{ width: 34, height: 34, borderRadius: 10, background: V.vanilla, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Icon.Pin size={18} c={V.coffee}/>
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, color: V.mute, fontWeight: 600 }}>Ваша кофейня</div>
+                  <div style={{ fontSize: 14, color: V.ink, fontWeight: 700 }}>Vanilla {MENU_SHOPS.find(s => s.id === shop)?.name}</div>
+                </div>
               </div>
+              <Icon.Chevron size={18} c={V.mute} dir={shopOpen ? 'up' : 'down'}/>
+            </button>
+            {shopOpen && (
+              <div style={{ marginTop: 6, background: '#fff', borderRadius: 14, overflow: 'hidden', border: `1px solid ${V.line}`, boxShadow: '0 10px 28px rgba(46,31,21,0.12)' }}>
+                {MENU_SHOPS.map((s, i) => (
+                  <button key={s.id} onClick={() => { setShop(s.id); setShopOpen(false); }} style={{
+                    width: '100%', padding: '12px 16px', background: 'none', border: 'none',
+                    borderBottom: i === MENU_SHOPS.length - 1 ? 'none' : `1px solid ${V.line}`,
+                    textAlign: 'left', cursor: 'pointer',
+                    fontSize: 14, fontWeight: shop === s.id ? 700 : 500,
+                    color: shop === s.id ? V.bright : V.ink,
+                  }}>{s.name}</button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="scroller" style={{ display: 'flex', gap: 8, overflowX: 'auto', padding: '0 20px 14px' }}>
+            {CATEGORIES.map(c => {
+              const active = cat === c;
+              return (
+                <button key={c} onClick={() => setCat(c)} style={{
+                  whiteSpace: 'nowrap',
+                  background: active ? V.bright : '#fff',
+                  color: active ? '#fff' : V.ink,
+                  border: active ? 'none' : `1px solid ${V.line}`,
+                  padding: '9px 16px', borderRadius: 999,
+                  fontSize: 13.5, fontWeight: active ? 700 : 600,
+                  cursor: 'pointer',
+                  boxShadow: active ? '0 4px 14px rgba(255,102,0,0.3)' : 'none',
+                  transition: 'all 0.15s ease',
+                }}>{c}</button>
+              );
+            })}
+          </div>
+
+          <div style={{ padding: '0 20px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div style={{ fontSize: 12, color: V.mute, fontWeight: 600, margin: '2px 4px' }}>
+              {cat} · {items.length} позиций
+            </div>
+            {items.map((it, i) => (
+              <div key={i} style={{
+                background: '#fff', borderRadius: 16, padding: '14px 16px',
+                border: `1px solid ${V.line}`,
+                display: 'flex', alignItems: 'flex-start', gap: 12
+              }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: V.ink, letterSpacing: '-0.01em' }}>{it.name}</div>
+                  {it.desc && <div style={{ fontSize: 12, color: V.mute, marginTop: 4, lineHeight: 1.4 }}>{it.desc}</div>}
+                </div>
+                <div style={{ fontSize: 14, fontWeight: 800, color: V.bright, textAlign: 'right', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                  {it.price} ₸
+                </div>
+              </div>
+            ))}
+            {cat === 'Завтраки' && (
+              <div style={{
+                background: V.pinkCream, borderRadius: 14, padding: '12px 16px',
+                fontSize: 12.5, color: V.coffee, fontWeight: 600, marginTop: 4,
+                display: 'flex', gap: 10, alignItems: 'center'
+              }}>
+                <span style={{ fontSize: 18 }}>☕</span>
+                <span>{BREAKFAST_NOTE}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    // ═══ REWARDS ══════════════════════════════════════════════════════
+    function RewardCard({ reward }) {
+      const IconComp = Icon[reward.icon];
+      const canClaim = USER.bonuses >= reward.cost;
+      return (
+        <div style={{ background: '#fff', borderRadius: 20, padding: 14, border: `1px solid ${V.line}`, display: 'flex', alignItems: 'center', gap: 14, opacity: canClaim ? 1 : 0.55 }}>
+          <div style={{ width: 56, height: 56, borderRadius: 16, flexShrink: 0, background: `${reward.accent}22`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <IconComp size={28} c={reward.accent} />
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 15, fontWeight: 700, color: V.ink, letterSpacing: '-0.01em' }}>{reward.title}</div>
+            <div style={{ fontSize: 12, color: V.mute, marginTop: 3 }}>{reward.sub}</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: V.coffee, marginTop: 6 }}>{reward.cost} <span style={{ opacity: 0.55, fontWeight: 500 }}>бонусов</span></div>
+          </div>
+          <button disabled={!canClaim} className={canClaim ? 'press' : ''} style={{ background: canClaim ? V.bright : V.paper, color: canClaim ? '#fff' : V.mute, border: 'none', borderRadius: 999, padding: '10px 16px', fontSize: 13, fontWeight: 700, cursor: canClaim ? 'pointer' : 'not-allowed', letterSpacing: '-0.01em', flexShrink: 0 }}>
+            {canClaim ? 'Забрать' : 'Мало'}
+          </button>
+        </div>
+      );
+    }
+
+    function RewardsScreen() {
+      const [sub, setSub] = useState('rewards');
+      return (
+        <div style={{ padding: '0 20px 24px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <PageHeader title="Бонусы" sub={`На счету ${USER.bonuses} бонусов`} />
+          <div style={{ background: V.coffee, color: V.vanilla, borderRadius: 18, padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <Icon.Spark size={18} c={V.bright} />
+              <span style={{ fontSize: 13, opacity: 0.85 }}>Баланс</span>
+            </div>
+            <div style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.02em' }}>{USER.bonuses} <span style={{ fontSize: 13, fontWeight: 500, opacity: 0.7 }}>б.</span></div>
+          </div>
+
+          <div style={{ display: 'flex', background: 'rgba(74,55,40,0.06)', borderRadius: 12, padding: 4 }}>
+            {[{id:'rewards', l:'Награды'}, {id:'history', l:'История'}].map(t => {
+              const active = sub === t.id;
+              return (
+                <button key={t.id} onClick={() => setSub(t.id)} style={{
+                  flex: 1, padding: '9px 0',
+                  background: active ? '#fff' : 'transparent', border: 'none', borderRadius: 9,
+                  fontSize: 13.5, fontWeight: active ? 700 : 600,
+                  color: active ? V.ink : V.mute, cursor: 'pointer',
+                  boxShadow: active ? '0 2px 6px rgba(46,31,21,0.08)' : 'none',
+                  transition: 'all 0.15s ease'
+                }}>{t.l}</button>
+              );
+            })}
+          </div>
+
+          {sub === 'rewards' ? (
+            <>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {REWARDS.map(r => <RewardCard key={r.id} reward={r} />)}
+              </div>
+              <div style={{ marginTop: 4, padding: '14px 16px', borderRadius: 16, background: V.vanilla, color: V.coffee, fontSize: 12, lineHeight: 1.5, border: `1px solid ${V.line}` }}>
+                Баллы начисляются с каждого заказа: 1 бонус = 1 ₸. Награды можно забрать в любой кофейне Vanilla.
+              </div>
+            </>
+          ) : (
+            <HistoryList/>
+          )}
+        </div>
+      );
+    }
+
+    // ═══ HISTORY ══════════════════════════════════════════════════════
+    function StatPill({ label, value, color, bg }) {
+      return (
+        <div style={{ background: bg, borderRadius: 16, padding: '12px 14px' }}>
+          <div style={{ fontSize: 12, color: V.mute }}>{label}</div>
+          <div style={{ fontSize: 20, fontWeight: 800, color, letterSpacing: '-0.02em', marginTop: 2, fontVariantNumeric: 'tabular-nums' }}>{value}</div>
+        </div>
+      );
+    }
+
+    function HistoryList() {
+      const groups = [
+        { label: 'Сегодня', items: HISTORY.filter(h => h.date.startsWith('Сегодня')) },
+        { label: 'Вчера',   items: HISTORY.filter(h => h.date.startsWith('Вчера')) },
+        { label: 'Ранее',   items: HISTORY.filter(h => !h.date.startsWith('Сегодня') && !h.date.startsWith('Вчера')) },
+      ].filter(g => g.items.length > 0);
+      const earned = HISTORY.filter(h => h.kind === '+').reduce((s, o) => s + o.amount, 0);
+      const spent  = HISTORY.filter(h => h.kind === '-').reduce((s, o) => s + o.amount, 0);
+      return (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            <StatPill label="Начислено" value={`+${earned}`} color="#2E7D32" bg="rgba(76,175,80,0.08)" />
+            <StatPill label="Потрачено" value={`−${spent}`} color={V.bright} bg="rgba(255,102,0,0.08)" />
+          </div>
+          {groups.map(g => (
+            <div key={g.label}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: V.mute, letterSpacing: '0.04em', textTransform: 'uppercase', margin: '6px 4px 8px' }}>{g.label}</div>
+              <div style={{ background: '#fff', borderRadius: 20, border: `1px solid ${V.line}`, overflow: 'hidden' }}>
+                {g.items.map((op, i) => <HistoryRow key={op.id} op={op} last={i === g.items.length - 1} />)}
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    function HistoryScreen({ onBack }) {
+      return (
+        <div style={{ padding: '0 20px 24px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, paddingTop: 4 }}>
+            <button onClick={onBack} className="press" style={{ width: 40, height: 40, borderRadius: 12, background: '#fff', border: `1px solid ${V.line}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+              <Icon.Chevron c={V.ink} dir="left" size={18}/>
+            </button>
+            <div style={{ fontSize: 28, fontWeight: 800, color: V.ink, letterSpacing: '-0.03em', lineHeight: 1 }}>История</div>
+          </div>
+          <HistoryList/>
+        </div>
+      );
+    }
+
+    // ═══ SHOPS ════════════════════════════════════════════════════════
+    function MiniMap() {
+      return (
+        <svg width="100%" height="100%" viewBox="0 0 360 140" preserveAspectRatio="none">
+          <g stroke="rgba(74,55,40,0.15)" strokeWidth="1.5" fill="none">
+            <path d="M0 40 L360 60" /><path d="M0 95 L360 80" />
+            <path d="M80 0 L100 140" /><path d="M200 0 L220 140" /><path d="M290 0 L305 140" />
+          </g>
+          {[[70, 55], [150, 75], [240, 45], [300, 90], [110, 110]].map(([x, y], i) => (
+            <g key={i}>
+              <circle cx={x} cy={y} r="10" fill="rgba(255,102,0,0.15)" />
+              <circle cx={x} cy={y} r="5" fill="#FF6600" />
+              <circle cx={x} cy={y} r="1.8" fill="#fff" />
+            </g>
+          ))}
+        </svg>
+      );
+    }
+
+    function ShopCard({ shop }) {
+      return (
+        <div style={{ background: '#fff', borderRadius: 20, padding: 16, border: `1px solid ${V.line}` }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                <div style={{ fontSize: 16, fontWeight: 700, color: V.ink, letterSpacing: '-0.01em' }}>{shop.name}</div>
+                {shop.flagship && <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', background: V.vanilla, color: V.coffee, borderRadius: 6, letterSpacing: '0.05em' }}>FLAGSHIP</span>}
+              </div>
+              <div style={{ fontSize: 13, color: V.mute, marginTop: 4 }}>{shop.addr}</div>
+              <div style={{ display: 'flex', gap: 12, marginTop: 8, fontSize: 12 }}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                  <Icon.Clock size={13} c={shop.open ? '#2E7D32' : V.mute} />
+                  <span style={{ color: shop.open ? '#2E7D32' : V.mute, fontWeight: 600 }}>{shop.open ? 'Открыто' : 'Закрыто'}</span>
+                  <span style={{ color: V.mute }}>· {shop.hours}</span>
+                </span>
+              </div>
+            </div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: V.bright, background: 'rgba(255,102,0,0.1)', padding: '4px 10px', borderRadius: 999, flexShrink: 0 }}>{shop.dist}</div>
+          </div>
+          <button className="press" style={{ marginTop: 12, width: '100%', background: V.coffee, color: V.vanilla, border: 'none', padding: '12px', borderRadius: 14, fontSize: 14, fontWeight: 700, cursor: 'pointer', letterSpacing: '-0.01em', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+            <Icon.Route size={16} c={V.vanilla} /> Построить маршрут
+          </button>
+        </div>
+      );
+    }
+
+    function ShopsScreen({ onBack }) {
+      return (
+        <div style={{ padding: '0 20px 24px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, paddingTop: 4 }}>
+            <button onClick={onBack} className="press" style={{ width: 40, height: 40, borderRadius: 12, background: '#fff', border: `1px solid ${V.line}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+              <Icon.Chevron c={V.ink} dir="left" size={18}/>
+            </button>
+            <div>
+              <div style={{ fontSize: 28, fontWeight: 800, color: V.ink, letterSpacing: '-0.03em', lineHeight: 1 }}>Кофейни</div>
+              <div style={{ fontSize: 13, color: V.mute, marginTop: 4 }}>5 точек Vanilla в Алматы</div>
+            </div>
+          </div>
+          <div style={{ height: 140, borderRadius: 20, position: 'relative', overflow: 'hidden', background: `linear-gradient(135deg, ${V.vanilla}, ${V.pinkCream})`, border: `1px solid ${V.line}` }}>
+            <MiniMap />
+            <div style={{ position: 'absolute', left: 14, bottom: 12, background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(8px)', padding: '8px 14px', borderRadius: 12, fontSize: 12, fontWeight: 600, color: V.coffee, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Icon.Pin size={14} c={V.bright} /> Алматы
+            </div>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {SHOPS.map(s => <ShopCard key={s.id} shop={s} />)}
+          </div>
+        </div>
+      );
+    }
+
+    // ═══ PROFILE ══════════════════════════════════════════════════════
+    function StatBlock({ label, value, unit, color, tall }) {
+      return (
+        <div style={{ background: '#fff', borderRadius: 18, padding: '14px 16px', border: `1px solid ${V.line}` }}>
+          <div style={{ fontSize: 12, color: V.mute }}>{label}</div>
+          <div style={{ fontSize: tall ? 16 : 24, fontWeight: 800, color, letterSpacing: '-0.02em', marginTop: 4, lineHeight: 1.1, fontVariantNumeric: 'tabular-nums' }}>
+            {typeof value === 'number' ? value.toLocaleString('ru-RU') : value}
+          </div>
+          {unit && <div style={{ fontSize: 11, color: V.mute, marginTop: 2 }}>{unit}</div>}
+        </div>
+      );
+    }
+
+    function Toggle({ on: initial = false }) {
+      const [on, setOn] = useState(initial);
+      return (
+        <button onClick={(e) => { e.stopPropagation(); setOn(!on); }} style={{ width: 44, height: 26, borderRadius: 999, background: on ? V.bright : '#D1D1D6', border: 'none', position: 'relative', cursor: 'pointer', transition: 'background 0.2s' }}>
+          <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#fff', position: 'absolute', top: 2, left: on ? 20 : 2, transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
+        </button>
+      );
+    }
+
+    function SettingsRow({ icon, label, right, chevron, last }) {
+      return (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderBottom: last ? 'none' : `1px solid ${V.line}`, cursor: 'pointer' }}>
+          <div style={{ width: 32, height: 32, borderRadius: 10, background: V.vanilla, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{icon}</div>
+          <div style={{ flex: 1, fontSize: 14, fontWeight: 500, color: V.ink }}>{label}</div>
+          {right}
+          {chevron && <Icon.Chevron size={16} c={V.mute} />}
+        </div>
+      );
+    }
+
+    function ProfileScreen() {
+      return (
+        <div style={{ padding: '0 20px 24px', display: 'flex', flexDirection: 'column', gap: 18 }}>
+          <PageHeader title="Профиль" />
+          <div style={{ background: `linear-gradient(135deg, ${V.vanilla}, ${V.pinkCream})`, borderRadius: 24, padding: '22px 20px', display: 'flex', alignItems: 'center', gap: 16, border: `1px solid ${V.line}` }}>
+            <div style={{ width: 72, height: 72, borderRadius: '50%', background: `linear-gradient(135deg, ${V.coffee}, ${V.coffeeDeep})`, color: V.vanilla, fontSize: 32, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 6px 16px -4px rgba(74,55,40,0.4)', flexShrink: 0 }}>
+              {USER.initial}
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 20, fontWeight: 700, color: V.ink, letterSpacing: '-0.02em' }}>{USER.name}</div>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: V.bright, color: '#fff', padding: '3px 9px', borderRadius: 999, fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', marginTop: 6 }}>
+                <Icon.Star size={10} fill c="#fff" /> GOLD
+              </div>
+              <div style={{ fontSize: 12, color: V.mute, marginTop: 6 }}>В программе с {STATS.joined}</div>
+            </div>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            <StatBlock label="Заработано" value={STATS.earned} unit="бонусов" color={V.bright} />
+            <StatBlock label="Потрачено"  value={STATS.spent} unit="бонусов" color={V.coffee} />
+            <StatBlock label="Посещений"  value={STATS.visits} unit="чашек кофе" color={V.coffee} />
+            <StatBlock label="Любимая"    value={STATS.favorite} tall color={V.coffee} />
+          </div>
+          <div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: V.mute, letterSpacing: '0.04em', textTransform: 'uppercase', margin: '6px 4px 8px' }}>Настройки</div>
+            <div style={{ background: '#fff', borderRadius: 20, border: `1px solid ${V.line}`, overflow: 'hidden' }}>
+              <SettingsRow icon={<Icon.Bell c={V.coffee}/>} label="Уведомления" right={<Toggle on />} />
+              <SettingsRow icon={<Icon.Help c={V.coffee}/>} label="Помощь и поддержка" chevron />
+              <SettingsRow icon={<Icon.Info c={V.coffee}/>} label="О программе лояльности" chevron last />
+            </div>
+          </div>
+
+          <div style={{ textAlign: 'center', padding: '16px 0 8px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+            <VanillaMark size={20} textColor={V.coffee} />
+            <div style={{ fontSize: 11, color: V.mute }}>Vanilla Coffee · Алматы · v2.4.1</div>
+          </div>
+        </div>
+      );
+    }
+
+    // ═══ QR MODAL ═════════════════════════════════════════════════════
+    function QRCode({ size = 240 }) {
+      const pattern = useMemo(() => {
+        const n = 25;
+        const arr = [];
+        for (let y = 0; y < n; y++) {
+          for (let x = 0; x < n; x++) {
+            const inFinder = (fx, fy) => x >= fx && x < fx + 7 && y >= fy && y < fy + 7;
+            const isFinder = inFinder(0,0) || inFinder(n-7,0) || inFinder(0,n-7);
+            if (isFinder) {
+              const inner = (fx, fy) => {
+                const lx = x - fx, ly = y - fy;
+                const border = lx === 0 || lx === 6 || ly === 0 || ly === 6;
+                const core = lx >= 2 && lx <= 4 && ly >= 2 && ly <= 4;
+                return border || core;
+              };
+              if (inner(0,0) || inner(n-7,0) || inner(0,n-7)) arr.push([x, y]);
+            } else {
+              const v = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453;
+              if ((v - Math.floor(v)) > 0.55) arr.push([x, y]);
+            }
+          }
+        }
+        return arr;
+      }, []);
+      const cell = size / 27;
+      return (
+        <div style={{ position: 'relative', width: size, height: size }}>
+          <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+            <rect width={size} height={size} fill="#fff" />
+            {pattern.map(([x, y], i) => (
+              <rect key={i} x={(x + 1) * cell} y={(y + 1) * cell} width={cell * 0.95} height={cell * 0.95} fill={V.ink} rx={cell * 0.2} />
+            ))}
+            <rect x={size / 2 - 22} y={size / 2 - 22} width={44} height={44} rx={10} fill="#fff"/>
+            <rect x={size / 2 - 19} y={size / 2 - 19} width={38} height={38} rx={9} fill={V.coffee}/>
+          </svg>
+          <div style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }}>
+            <img src="preview-2.png" alt="" style={{ width: 32, height: 32, display: 'block' }} />
+          </div>
+        </div>
+      );
+    }
+
+    function QRModal({ onClose }) {
+      return (
+        <div className="backdrop-enter" style={{ position: 'absolute', inset: 0, zIndex: 100, background: 'rgba(46,31,21,0.5)', backdropFilter: 'blur(14px) saturate(140%)', WebkitBackdropFilter: 'blur(14px) saturate(140%)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }} onClick={onClose}>
+          <div className="modal-enter" onClick={e => e.stopPropagation()} style={{ background: V.paper, borderRadius: 32, padding: 24, width: '100%', maxWidth: 320, boxShadow: '0 24px 64px -12px rgba(46,31,21,0.4)', position: 'relative' }}>
+            <button onClick={onClose} style={{ position: 'absolute', top: 16, right: 16, width: 32, height: 32, borderRadius: '50%', background: V.vanilla, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Icon.Close size={16} c={V.coffee} />
+            </button>
+            <div style={{ textAlign: 'center', paddingTop: 4 }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: V.bright, color: '#fff', padding: '4px 10px', borderRadius: 999, fontSize: 10, fontWeight: 700, letterSpacing: '0.08em' }}>
+                <Icon.Star size={10} fill c="#fff" /> GOLD
+              </div>
+              <div style={{ fontSize: 20, fontWeight: 700, color: V.ink, marginTop: 10, letterSpacing: '-0.02em' }}>{USER.name}</div>
+              <div style={{ fontSize: 13, color: V.mute, marginTop: 2 }}>Покажите код бариста</div>
+            </div>
+            <div style={{ marginTop: 18, padding: 14, background: '#fff', borderRadius: 24, display: 'flex', justifyContent: 'center', border: `1px solid ${V.line}` }}>
+              <QRCode size={240} />
+            </div>
+            <div style={{ marginTop: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, padding: '12px 14px', background: V.coffee, color: V.vanilla, borderRadius: 16 }}>
+              <Icon.Spark c={V.bright} size={16} />
+              <span style={{ fontSize: 13, opacity: 0.85 }}>Баланс</span>
+              <span style={{ marginLeft: 'auto', fontSize: 18, fontWeight: 800, letterSpacing: '-0.02em' }}>{USER.bonuses} б.</span>
+            </div>
+            <div style={{ marginTop: 14, textAlign: 'center', fontSize: 11, color: V.mute }}>
+              ID · VN-2024-{USER.initial}7382 · действителен 2:58
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // ═══ SHELL ════════════════════════════════════════════════════════
+    function StatusBar() {
+      return (
+        <div style={{ height: 54, paddingTop: 18, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '18px 32px 0', fontFamily: '-apple-system, "SF Pro", Inter, system-ui', color: V.ink, position: 'relative', zIndex: 5 }}>
+          <span style={{ fontWeight: 600, fontSize: 17, letterSpacing: '-0.02em' }}>9:41</span>
+          <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+            <svg width="18" height="12" viewBox="0 0 18 12"><rect x="0" y="7" width="3" height="5" rx="0.6" fill={V.ink}/><rect x="4.5" y="4.5" width="3" height="7.5" rx="0.6" fill={V.ink}/><rect x="9" y="2" width="3" height="10" rx="0.6" fill={V.ink}/><rect x="13.5" y="0" width="3" height="12" rx="0.6" fill={V.ink}/></svg>
+            <svg width="16" height="11" viewBox="0 0 16 11" fill="none"><path d="M8 3C10 3 12 4 13.4 5.4L14.5 4.3C12.8 2.6 10.5 1.5 8 1.5C5.5 1.5 3.2 2.6 1.5 4.3L2.6 5.4C4 4 6 3 8 3Z" fill={V.ink}/><path d="M8 6.3C9.3 6.3 10.5 6.8 11.4 7.7L12.5 6.6C11.3 5.4 9.7 4.8 8 4.8C6.3 4.8 4.7 5.4 3.5 6.6L4.6 7.7C5.5 6.8 6.7 6.3 8 6.3Z" fill={V.ink}/><circle cx="8" cy="9.8" r="1.2" fill={V.ink}/></svg>
+            <svg width="25" height="12" viewBox="0 0 25 12"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke={V.ink} strokeOpacity="0.35" fill="none"/><rect x="2" y="2" width="18" height="8" rx="1.5" fill={V.ink}/><path d="M23 4v4c0.7-0.2 1.2-1 1.2-2S23.7 4.2 23 4Z" fill={V.ink} fillOpacity="0.35"/></svg>
+          </div>
+        </div>
+      );
+    }
+
+    function TabBar({ tab, setTab }) {
+      const tabs = [
+        { id: 'home',    label: 'Главная', icon: Icon.Home },
+        { id: 'menu',    label: 'Меню',    icon: Icon.Book },
+        { id: 'rewards', label: 'Бонусы',  icon: Icon.Gift },
+        { id: 'profile', label: 'Профиль', icon: Icon.User },
+      ];
+      return (
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, paddingBottom: 28, paddingTop: 10, background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(20px) saturate(180%)', WebkitBackdropFilter: 'blur(20px) saturate(180%)', borderTop: `1px solid ${V.line}`, display: 'flex', justifyContent: 'space-around', alignItems: 'center', zIndex: 30 }}>
+          {tabs.map(t => {
+            const active = tab === t.id;
+            const IconC = t.icon;
+            return (
+              <button key={t.id} onClick={() => setTab(t.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, padding: '6px 10px', flex: 1, color: active ? V.bright : V.mute, transition: 'color 0.2s' }}>
+                <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {active && <div style={{ position: 'absolute', inset: -4, background: 'rgba(255,102,0,0.12)', borderRadius: 10 }}/>}
+                  <IconC size={22} c={active ? V.bright : V.mute} fill={active} />
+                </div>
+                <span style={{ fontSize: 10, fontWeight: active ? 700 : 500, letterSpacing: '-0.01em' }}>{t.label}</span>
+              </button>
             );
           })}
         </div>
-      </div>
-
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-        <QuickAction label="Награды" sub="6 доступно" icon={<Icon.Gift size={22} c={V.bright}/>} bg={V.vanilla} onClick={() => onNavigate('rewards')} />
-        <QuickAction label="Кофейни" sub="5 точек"    icon={<Icon.Pin  size={22} c={V.coffee}/>}  bg={V.pinkCream} onClick={onOpenShops} />
-        <QuickAction label="История" sub="все операции" icon={<Icon.Clock size={22} c={V.coffee}/>} bg="#EFE5D3" onClick={onOpenHistory} />
-        <QuickAction label="Меню"    sub="60+ позиций"  icon={<Icon.Cup size={22} c={V.bright}/>}   bg="#FCE9DA" onClick={() => onNavigate('menu')} />
-      </div>
-
-      <div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, padding: '0 4px' }}>
-          <div style={{ fontSize: 15, fontWeight: 700, color: V.ink }}>Последние операции</div>
-          <button onClick={onOpenHistory} style={{ background: 'none', border: 'none', color: V.bright, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Все →</button>
-        </div>
-        <div style={{ background: '#fff', borderRadius: 20, border: `1px solid ${V.line}`, overflow: 'hidden' }}>
-          {HISTORY.slice(0, 3).map((op, i) => <HistoryRow key={op.id} op={op} last={i === 2} />)}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ═══ MENU ═════════════════════════════════════════════════════════
-function MenuScreen() {
-  const [shop, setShop] = useState(MENU_SHOPS[0].id);
-  const [cat, setCat] = useState(CATEGORIES[0]);
-  const [shopOpen, setShopOpen] = useState(false);
-  const items = MENU[cat] || [];
-
-  return (
-    <div style={{ paddingBottom: 24 }}>
-      <div style={{ padding: '0 20px 14px' }}>
-        <PageHeader title="Меню" sub="Актуальные позиции кофейни" />
-      </div>
-      <div style={{ padding: '0 20px 14px' }}>
-        <button onClick={() => setShopOpen(s => !s)} className="press" style={{
-          width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          background: '#fff', border: `1px solid ${V.line}`, borderRadius: 16,
-          padding: '12px 14px', cursor: 'pointer', textAlign: 'left',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ width: 34, height: 34, borderRadius: 10, background: V.vanilla, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Icon.Pin size={18} c={V.coffee}/>
-            </div>
-            <div>
-              <div style={{ fontSize: 11, color: V.mute, fontWeight: 600 }}>Ваша кофейня</div>
-              <div style={{ fontSize: 14, color: V.ink, fontWeight: 700 }}>Vanilla {MENU_SHOPS.find(s => s.id === shop)?.name}</div>
-            </div>
-          </div>
-          <Icon.Chevron size={18} c={V.mute} dir={shopOpen ? 'up' : 'down'}/>
-        </button>
-        {shopOpen && (
-          <div style={{ marginTop: 6, background: '#fff', borderRadius: 14, overflow: 'hidden', border: `1px solid ${V.line}`, boxShadow: '0 10px 28px rgba(46,31,21,0.12)' }}>
-            {MENU_SHOPS.map((s, i) => (
-              <button key={s.id} onClick={() => { setShop(s.id); setShopOpen(false); }} style={{
-                width: '100%', padding: '12px 16px', background: 'none', border: 'none',
-                borderBottom: i === MENU_SHOPS.length - 1 ? 'none' : `1px solid ${V.line}`,
-                textAlign: 'left', cursor: 'pointer',
-                fontSize: 14, fontWeight: shop === s.id ? 700 : 500,
-                color: shop === s.id ? V.bright : V.ink,
-              }}>{s.name}</button>
-            ))}
-          </div>
-        )}
-      </div>
-
-      <div className="scroller" style={{ display: 'flex', gap: 8, overflowX: 'auto', padding: '0 20px 14px' }}>
-        {CATEGORIES.map(c => {
-          const active = cat === c;
-          return (
-            <button key={c} onClick={() => setCat(c)} style={{
-              whiteSpace: 'nowrap',
-              background: active ? V.bright : '#fff',
-              color: active ? '#fff' : V.ink,
-              border: active ? 'none' : `1px solid ${V.line}`,
-              padding: '9px 16px', borderRadius: 999,
-              fontSize: 13.5, fontWeight: active ? 700 : 600,
-              cursor: 'pointer',
-              boxShadow: active ? '0 4px 14px rgba(255,102,0,0.3)' : 'none',
-              transition: 'all 0.15s ease',
-            }}>{c}</button>
-          );
-        })}
-      </div>
-
-      <div style={{ padding: '0 20px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-        <div style={{ fontSize: 12, color: V.mute, fontWeight: 600, margin: '2px 4px' }}>
-          {cat} · {items.length} позиций
-        </div>
-        {items.map((it, i) => (
-          <div key={i} style={{
-            background: '#fff', borderRadius: 16, padding: '14px 16px',
-            border: `1px solid ${V.line}`,
-            display: 'flex', alignItems: 'flex-start', gap: 12
-          }}>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 15, fontWeight: 700, color: V.ink, letterSpacing: '-0.01em' }}>{it.name}</div>
-              {it.desc && <div style={{ fontSize: 12, color: V.mute, marginTop: 4, lineHeight: 1.4 }}>{it.desc}</div>}
-            </div>
-            <div style={{ fontSize: 14, fontWeight: 800, color: V.bright, textAlign: 'right', whiteSpace: 'nowrap', flexShrink: 0 }}>
-              {it.price} ₸
-            </div>
-          </div>
-        ))}
-        {cat === 'Завтраки' && (
-          <div style={{
-            background: V.pinkCream, borderRadius: 14, padding: '12px 16px',
-            fontSize: 12.5, color: V.coffee, fontWeight: 600, marginTop: 4,
-            display: 'flex', gap: 10, alignItems: 'center'
-          }}>
-            <span style={{ fontSize: 18 }}>☕</span>
-            <span>{BREAKFAST_NOTE}</span>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// ═══ REWARDS ══════════════════════════════════════════════════════
-function RewardCard({ reward }) {
-  const IconComp = Icon[reward.icon];
-  const canClaim = USER.bonuses >= reward.cost;
-  return (
-    <div style={{ background: '#fff', borderRadius: 20, padding: 14, border: `1px solid ${V.line}`, display: 'flex', alignItems: 'center', gap: 14, opacity: canClaim ? 1 : 0.55 }}>
-      <div style={{ width: 56, height: 56, borderRadius: 16, flexShrink: 0, background: `${reward.accent}22`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <IconComp size={28} c={reward.accent} />
-      </div>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 15, fontWeight: 700, color: V.ink, letterSpacing: '-0.01em' }}>{reward.title}</div>
-        <div style={{ fontSize: 12, color: V.mute, marginTop: 3 }}>{reward.sub}</div>
-        <div style={{ fontSize: 13, fontWeight: 700, color: V.coffee, marginTop: 6 }}>{reward.cost} <span style={{ opacity: 0.55, fontWeight: 500 }}>бонусов</span></div>
-      </div>
-      <button disabled={!canClaim} className={canClaim ? 'press' : ''} style={{ background: canClaim ? V.bright : V.paper, color: canClaim ? '#fff' : V.mute, border: 'none', borderRadius: 999, padding: '10px 16px', fontSize: 13, fontWeight: 700, cursor: canClaim ? 'pointer' : 'not-allowed', letterSpacing: '-0.01em', flexShrink: 0 }}>
-        {canClaim ? 'Забрать' : 'Мало'}
-      </button>
-    </div>
-  );
-}
-
-function RewardsScreen() {
-  const [sub, setSub] = useState('rewards');
-  return (
-    <div style={{ padding: '0 20px 24px', display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <PageHeader title="Бонусы" sub={`На счету ${USER.bonuses} бонусов`} />
-      <div style={{ background: V.coffee, color: V.vanilla, borderRadius: 18, padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <Icon.Spark size={18} c={V.bright} />
-          <span style={{ fontSize: 13, opacity: 0.85 }}>Баланс</span>
-        </div>
-        <div style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.02em' }}>{USER.bonuses} <span style={{ fontSize: 13, fontWeight: 500, opacity: 0.7 }}>б.</span></div>
-      </div>
-
-      {/* Segmented control */}
-      <div style={{ display: 'flex', background: 'rgba(74,55,40,0.06)', borderRadius: 12, padding: 4 }}>
-        {[{id:'rewards', l:'Награды'}, {id:'history', l:'История'}].map(t => {
-          const active = sub === t.id;
-          return (
-            <button key={t.id} onClick={() => setSub(t.id)} style={{
-              flex: 1, padding: '9px 0',
-              background: active ? '#fff' : 'transparent', border: 'none', borderRadius: 9,
-              fontSize: 13.5, fontWeight: active ? 700 : 600,
-              color: active ? V.ink : V.mute, cursor: 'pointer',
-              boxShadow: active ? '0 2px 6px rgba(46,31,21,0.08)' : 'none',
-              transition: 'all 0.15s ease'
-            }}>{t.l}</button>
-          );
-        })}
-      </div>
-
-      {sub === 'rewards' ? (
-        <>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {REWARDS.map(r => <RewardCard key={r.id} reward={r} />)}
-          </div>
-          <div style={{ marginTop: 4, padding: '14px 16px', borderRadius: 16, background: V.vanilla, color: V.coffee, fontSize: 12, lineHeight: 1.5, border: `1px solid ${V.line}` }}>
-            Баллы начисляются с каждого заказа: 1 бонус = 1 ₸. Награды можно забрать в любой кофейне Vanilla.
-          </div>
-        </>
-      ) : (
-        <HistoryList/>
-      )}
-    </div>
-  );
-}
-
-// ═══ HISTORY ══════════════════════════════════════════════════════
-function StatPill({ label, value, color, bg }) {
-  return (
-    <div style={{ background: bg, borderRadius: 16, padding: '12px 14px' }}>
-      <div style={{ fontSize: 12, color: V.mute }}>{label}</div>
-      <div style={{ fontSize: 20, fontWeight: 800, color, letterSpacing: '-0.02em', marginTop: 2, fontVariantNumeric: 'tabular-nums' }}>{value}</div>
-    </div>
-  );
-}
-
-function HistoryList() {
-  const groups = [
-    { label: 'Сегодня', items: HISTORY.filter(h => h.date.startsWith('Сегодня')) },
-    { label: 'Вчера',   items: HISTORY.filter(h => h.date.startsWith('Вчера')) },
-    { label: 'Ранее',   items: HISTORY.filter(h => !h.date.startsWith('Сегодня') && !h.date.startsWith('Вчера')) },
-  ].filter(g => g.items.length > 0);
-  const earned = HISTORY.filter(h => h.kind === '+').reduce((s, o) => s + o.amount, 0);
-  const spent  = HISTORY.filter(h => h.kind === '-').reduce((s, o) => s + o.amount, 0);
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-        <StatPill label="Начислено" value={`+${earned}`} color="#2E7D32" bg="rgba(76,175,80,0.08)" />
-        <StatPill label="Потрачено" value={`−${spent}`} color={V.bright} bg="rgba(255,102,0,0.08)" />
-      </div>
-      {groups.map(g => (
-        <div key={g.label}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: V.mute, letterSpacing: '0.04em', textTransform: 'uppercase', margin: '6px 4px 8px' }}>{g.label}</div>
-          <div style={{ background: '#fff', borderRadius: 20, border: `1px solid ${V.line}`, overflow: 'hidden' }}>
-            {g.items.map((op, i) => <HistoryRow key={op.id} op={op} last={i === g.items.length - 1} />)}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function HistoryScreen({ onBack }) {
-  return (
-    <div style={{ padding: '0 20px 24px', display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, paddingTop: 4 }}>
-        <button onClick={onBack} className="press" style={{ width: 40, height: 40, borderRadius: 12, background: '#fff', border: `1px solid ${V.line}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-          <Icon.Chevron c={V.ink} dir="left" size={18}/>
-        </button>
-        <div style={{ fontSize: 28, fontWeight: 800, color: V.ink, letterSpacing: '-0.03em', lineHeight: 1 }}>История</div>
-      </div>
-      <HistoryList/>
-    </div>
-  );
-}
-
-// ═══ SHOPS ════════════════════════════════════════════════════════
-function MiniMap() {
-  return (
-    <svg width="100%" height="100%" viewBox="0 0 360 140" preserveAspectRatio="none">
-      <g stroke="rgba(74,55,40,0.15)" strokeWidth="1.5" fill="none">
-        <path d="M0 40 L360 60" /><path d="M0 95 L360 80" />
-        <path d="M80 0 L100 140" /><path d="M200 0 L220 140" /><path d="M290 0 L305 140" />
-      </g>
-      {[[70, 55], [150, 75], [240, 45], [300, 90], [110, 110]].map(([x, y], i) => (
-        <g key={i}>
-          <circle cx={x} cy={y} r="10" fill="rgba(255,102,0,0.15)" />
-          <circle cx={x} cy={y} r="5" fill="#FF6600" />
-          <circle cx={x} cy={y} r="1.8" fill="#fff" />
-        </g>
-      ))}
-    </svg>
-  );
-}
-
-function ShopCard({ shop }) {
-  return (
-    <div style={{ background: '#fff', borderRadius: 20, padding: 16, border: `1px solid ${V.line}` }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-            <div style={{ fontSize: 16, fontWeight: 700, color: V.ink, letterSpacing: '-0.01em' }}>{shop.name}</div>
-            {shop.flagship && <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', background: V.vanilla, color: V.coffee, borderRadius: 6, letterSpacing: '0.05em' }}>FLAGSHIP</span>}
-          </div>
-          <div style={{ fontSize: 13, color: V.mute, marginTop: 4 }}>{shop.addr}</div>
-          <div style={{ display: 'flex', gap: 12, marginTop: 8, fontSize: 12 }}>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-              <Icon.Clock size={13} c={shop.open ? '#2E7D32' : V.mute} />
-              <span style={{ color: shop.open ? '#2E7D32' : V.mute, fontWeight: 600 }}>{shop.open ? 'Открыто' : 'Закрыто'}</span>
-              <span style={{ color: V.mute }}>· {shop.hours}</span>
-            </span>
-          </div>
-        </div>
-        <div style={{ fontSize: 12, fontWeight: 700, color: V.bright, background: 'rgba(255,102,0,0.1)', padding: '4px 10px', borderRadius: 999, flexShrink: 0 }}>{shop.dist}</div>
-      </div>
-      <button className="press" style={{ marginTop: 12, width: '100%', background: V.coffee, color: V.vanilla, border: 'none', padding: '12px', borderRadius: 14, fontSize: 14, fontWeight: 700, cursor: 'pointer', letterSpacing: '-0.01em', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-        <Icon.Route size={16} c={V.vanilla} /> Построить маршрут
-      </button>
-    </div>
-  );
-}
-
-function ShopsScreen({ onBack }) {
-  return (
-    <div style={{ padding: '0 20px 24px', display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, paddingTop: 4 }}>
-        <button onClick={onBack} className="press" style={{ width: 40, height: 40, borderRadius: 12, background: '#fff', border: `1px solid ${V.line}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-          <Icon.Chevron c={V.ink} dir="left" size={18}/>
-        </button>
-        <div>
-          <div style={{ fontSize: 28, fontWeight: 800, color: V.ink, letterSpacing: '-0.03em', lineHeight: 1 }}>Кофейни</div>
-          <div style={{ fontSize: 13, color: V.mute, marginTop: 4 }}>5 точек Vanilla в Алматы</div>
-        </div>
-      </div>
-      <div style={{ height: 140, borderRadius: 20, position: 'relative', overflow: 'hidden', background: `linear-gradient(135deg, ${V.vanilla}, ${V.pinkCream})`, border: `1px solid ${V.line}` }}>
-        <MiniMap />
-        <div style={{ position: 'absolute', left: 14, bottom: 12, background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(8px)', padding: '8px 14px', borderRadius: 12, fontSize: 12, fontWeight: 600, color: V.coffee, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <Icon.Pin size={14} c={V.bright} /> Алматы
-        </div>
-      </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        {SHOPS.map(s => <ShopCard key={s.id} shop={s} />)}
-      </div>
-    </div>
-  );
-}
-
-// ═══ PROFILE ══════════════════════════════════════════════════════
-function StatBlock({ label, value, unit, color, tall }) {
-  return (
-    <div style={{ background: '#fff', borderRadius: 18, padding: '14px 16px', border: `1px solid ${V.line}` }}>
-      <div style={{ fontSize: 12, color: V.mute }}>{label}</div>
-      <div style={{ fontSize: tall ? 16 : 24, fontWeight: 800, color, letterSpacing: '-0.02em', marginTop: 4, lineHeight: 1.1, fontVariantNumeric: 'tabular-nums' }}>
-        {typeof value === 'number' ? value.toLocaleString('ru-RU') : value}
-      </div>
-      {unit && <div style={{ fontSize: 11, color: V.mute, marginTop: 2 }}>{unit}</div>}
-    </div>
-  );
-}
-
-function Toggle({ on: initial = false }) {
-  const [on, setOn] = useState(initial);
-  return (
-    <button onClick={(e) => { e.stopPropagation(); setOn(!on); }} style={{ width: 44, height: 26, borderRadius: 999, background: on ? V.bright : '#D1D1D6', border: 'none', position: 'relative', cursor: 'pointer', transition: 'background 0.2s' }}>
-      <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#fff', position: 'absolute', top: 2, left: on ? 20 : 2, transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
-    </button>
-  );
-}
-
-function SettingsRow({ icon, label, right, chevron, last }) {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderBottom: last ? 'none' : `1px solid ${V.line}`, cursor: 'pointer' }}>
-      <div style={{ width: 32, height: 32, borderRadius: 10, background: V.vanilla, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{icon}</div>
-      <div style={{ flex: 1, fontSize: 14, fontWeight: 500, color: V.ink }}>{label}</div>
-      {right}
-      {chevron && <Icon.Chevron size={16} c={V.mute} />}
-    </div>
-  );
-}
-
-function ProfileScreen() {
-  return (
-    <div style={{ padding: '0 20px 24px', display: 'flex', flexDirection: 'column', gap: 18 }}>
-      <PageHeader title="Профиль" />
-      <div style={{ background: `linear-gradient(135deg, ${V.vanilla}, ${V.pinkCream})`, borderRadius: 24, padding: '22px 20px', display: 'flex', alignItems: 'center', gap: 16, border: `1px solid ${V.line}` }}>
-        <div style={{ width: 72, height: 72, borderRadius: '50%', background: `linear-gradient(135deg, ${V.coffee}, ${V.coffeeDeep})`, color: V.vanilla, fontSize: 32, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 6px 16px -4px rgba(74,55,40,0.4)', flexShrink: 0 }}>
-          {USER.initial}
-        </div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 20, fontWeight: 700, color: V.ink, letterSpacing: '-0.02em' }}>{USER.name}</div>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: V.bright, color: '#fff', padding: '3px 9px', borderRadius: 999, fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', marginTop: 6 }}>
-            <Icon.Star size={10} fill c="#fff" /> GOLD
-          </div>
-          <div style={{ fontSize: 12, color: V.mute, marginTop: 6 }}>В программе с {STATS.joined}</div>
-        </div>
-      </div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-        <StatBlock label="Заработано" value={STATS.earned} unit="бонусов" color={V.bright} />
-        <StatBlock label="Потрачено"  value={STATS.spent} unit="бонусов" color={V.coffee} />
-        <StatBlock label="Посещений"  value={STATS.visits} unit="чашек кофе" color={V.coffee} />
-        <StatBlock label="Любимая"    value={STATS.favorite} tall color={V.coffee} />
-      </div>
-      <div>
-        <div style={{ fontSize: 12, fontWeight: 600, color: V.mute, letterSpacing: '0.04em', textTransform: 'uppercase', margin: '6px 4px 8px' }}>Настройки</div>
-        <div style={{ background: '#fff', borderRadius: 20, border: `1px solid ${V.line}`, overflow: 'hidden' }}>
-          <SettingsRow icon={<Icon.Bell c={V.coffee}/>} label="Уведомления" right={<Toggle on />} />
-          <SettingsRow icon={<Icon.Help c={V.coffee}/>} label="Помощь и поддержка" chevron />
-          <SettingsRow icon={<Icon.Info c={V.coffee}/>} label="О программе лояльности" chevron last />
-        </div>
-      </div>
-      
-      {/* Использование единого логотипа внизу экрана Профиля */}
-      <div style={{ textAlign: 'center', padding: '16px 0 8px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
-        <VanillaMark size={20} textColor={V.coffee} />
-        <div style={{ fontSize: 11, color: V.mute }}>Vanilla Coffee · Алматы · v2.4.1</div>
-      </div>
-    </div>
-  );
-}
-
-// ═══ QR MODAL ═════════════════════════════════════════════════════
-function QRCode({ size = 240 }) {
-  const pattern = useMemo(() => {
-    const n = 25;
-    const arr = [];
-    for (let y = 0; y < n; y++) {
-      for (let x = 0; x < n; x++) {
-        const inFinder = (fx, fy) => x >= fx && x < fx + 7 && y >= fy && y < fy + 7;
-        const isFinder = inFinder(0,0) || inFinder(n-7,0) || inFinder(0,n-7);
-        if (isFinder) {
-          const inner = (fx, fy) => {
-            const lx = x - fx, ly = y - fy;
-            const border = lx === 0 || lx === 6 || ly === 0 || ly === 6;
-            const core = lx >= 2 && lx <= 4 && ly >= 2 && ly <= 4;
-            return border || core;
-          };
-          if (inner(0,0) || inner(n-7,0) || inner(0,n-7)) arr.push([x, y]);
-        } else {
-          const v = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453;
-          if ((v - Math.floor(v)) > 0.55) arr.push([x, y]);
-        }
-      }
+      );
     }
-    return arr;
-  }, []);
-  const cell = size / 27;
-  return (
-    <div style={{ position: 'relative', width: size, height: size }}>
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-        <rect width={size} height={size} fill="#fff" />
-        {pattern.map(([x, y], i) => (
-          <rect key={i} x={(x + 1) * cell} y={(y + 1) * cell} width={cell * 0.95} height={cell * 0.95} fill={V.ink} rx={cell * 0.2} />
-        ))}
-        <rect x={size / 2 - 22} y={size / 2 - 22} width={44} height={44} rx={10} fill="#fff"/>
-        <rect x={size / 2 - 19} y={size / 2 - 19} width={38} height={38} rx={9} fill={V.coffee}/>
-      </svg>
-      <div style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }}>
-        <img src="preview-2.png" alt="" style={{ width: 32, height: 32, display: 'block' }} />
-      </div>
-    </div>
-  );
-}
 
-function QRModal({ onClose }) {
-  return (
-    <div className="backdrop-enter" style={{ position: 'absolute', inset: 0, zIndex: 100, background: 'rgba(46,31,21,0.5)', backdropFilter: 'blur(14px) saturate(140%)', WebkitBackdropFilter: 'blur(14px) saturate(140%)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }} onClick={onClose}>
-      <div className="modal-enter" onClick={e => e.stopPropagation()} style={{ background: V.paper, borderRadius: 32, padding: 24, width: '100%', maxWidth: 320, boxShadow: '0 24px 64px -12px rgba(46,31,21,0.4)', position: 'relative' }}>
-        <button onClick={onClose} style={{ position: 'absolute', top: 16, right: 16, width: 32, height: 32, borderRadius: '50%', background: V.vanilla, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <Icon.Close size={16} c={V.coffee} />
-        </button>
-        <div style={{ textAlign: 'center', paddingTop: 4 }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: V.bright, color: '#fff', padding: '4px 10px', borderRadius: 999, fontSize: 10, fontWeight: 700, letterSpacing: '0.08em' }}>
-            <Icon.Star size={10} fill c="#fff" /> GOLD
-          </div>
-          <div style={{ fontSize: 20, fontWeight: 700, color: V.ink, marginTop: 10, letterSpacing: '-0.02em' }}>{USER.name}</div>
-          <div style={{ fontSize: 13, color: V.mute, marginTop: 2 }}>Покажите код бариста</div>
-        </div>
-        <div style={{ marginTop: 18, padding: 14, background: '#fff', borderRadius: 24, display: 'flex', justifyContent: 'center', border: `1px solid ${V.line}` }}>
-          <QRCode size={240} />
-        </div>
-        <div style={{ marginTop: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, padding: '12px 14px', background: V.coffee, color: V.vanilla, borderRadius: 16 }}>
-          <Icon.Spark c={V.bright} size={16} />
-          <span style={{ fontSize: 13, opacity: 0.85 }}>Баланс</span>
-          <span style={{ marginLeft: 'auto', fontSize: 18, fontWeight: 800, letterSpacing: '-0.02em' }}>{USER.bonuses} б.</span>
-        </div>
-        <div style={{ marginTop: 14, textAlign: 'center', fontSize: 11, color: V.mute }}>
-          ID · VN-2024-{USER.initial}7382 · действителен 2:58
-        </div>
-      </div>
-    </div>
-  );
-}
+    function App() {
+      const [tab, setTab] = useState(() => {
+        try { return localStorage.getItem('vanilla-tab') || 'home'; } catch (e) { return 'home'; }
+      });
+      const [qrOpen, setQrOpen] = useState(false);
+      const [overlay, setOverlay] = useState(null);
 
-// ═══ SHELL ════════════════════════════════════════════════════════
-function StatusBar() {
-  return (
-    <div style={{ height: 54, paddingTop: 18, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '18px 32px 0', fontFamily: '-apple-system, "SF Pro", Inter, system-ui', color: V.ink, position: 'relative', zIndex: 5 }}>
-      <span style={{ fontWeight: 600, fontSize: 17, letterSpacing: '-0.02em' }}>9:41</span>
-      <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-        <svg width="18" height="12" viewBox="0 0 18 12"><rect x="0" y="7" width="3" height="5" rx="0.6" fill={V.ink}/><rect x="4.5" y="4.5" width="3" height="7.5" rx="0.6" fill={V.ink}/><rect x="9" y="2" width="3" height="10" rx="0.6" fill={V.ink}/><rect x="13.5" y="0" width="3" height="12" rx="0.6" fill={V.ink}/></svg>
-        <svg width="16" height="11" viewBox="0 0 16 11" fill="none"><path d="M8 3C10 3 12 4 13.4 5.4L14.5 4.3C12.8 2.6 10.5 1.5 8 1.5C5.5 1.5 3.2 2.6 1.5 4.3L2.6 5.4C4 4 6 3 8 3Z" fill={V.ink}/><path d="M8 6.3C9.3 6.3 10.5 6.8 11.4 7.7L12.5 6.6C11.3 5.4 9.7 4.8 8 4.8C6.3 4.8 4.7 5.4 3.5 6.6L4.6 7.7C5.5 6.8 6.7 6.3 8 6.3Z" fill={V.ink}/><circle cx="8" cy="9.8" r="1.2" fill={V.ink}/></svg>
-        <svg width="25" height="12" viewBox="0 0 25 12"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke={V.ink} strokeOpacity="0.35" fill="none"/><rect x="2" y="2" width="18" height="8" rx="1.5" fill={V.ink}/><path d="M23 4v4c0.7-0.2 1.2-1 1.2-2S23.7 4.2 23 4Z" fill={V.ink} fillOpacity="0.35"/></svg>
-      </div>
-    </div>
-  );
-}
+      useEffect(() => {
+        try { localStorage.setItem('vanilla-tab', tab); } catch (e) {}
+      }, [tab]);
 
-function TabBar({ tab, setTab }) {
-  const tabs = [
-    { id: 'home',    label: 'Главная', icon: Icon.Home },
-    { id: 'menu',    label: 'Меню',    icon: Icon.Book },
-    { id: 'rewards', label: 'Бонусы',  icon: Icon.Gift },
-    { id: 'profile', label: 'Профиль', icon: Icon.User },
-  ];
-  return (
-    <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, paddingBottom: 28, paddingTop: 10, background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(20px) saturate(180%)', WebkitBackdropFilter: 'blur(20px) saturate(180%)', borderTop: `1px solid ${V.line}`, display: 'flex', justifyContent: 'space-around', alignItems: 'center', zIndex: 30 }}>
-      {tabs.map(t => {
-        const active = tab === t.id;
-        const IconC = t.icon;
-        return (
-          <button key={t.id} onClick={() => setTab(t.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, padding: '6px 10px', flex: 1, color: active ? V.bright : V.mute, transition: 'color 0.2s' }}>
-            <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              {active && <div style={{ position: 'absolute', inset: -4, background: 'rgba(255,102,0,0.12)', borderRadius: 10 }}/>}
-              <IconC size={22} c={active ? V.bright : V.mute} fill={active} />
+      const screens = {
+        home:    <HomeScreen onOpenQR={() => setQrOpen(true)} onNavigate={(t) => { setOverlay(null); setTab(t); }} onOpenShops={() => setOverlay('shops')} onOpenHistory={() => setOverlay('history')} />,
+        menu:    <MenuScreen />,
+        rewards: <RewardsScreen />,
+        profile: <ProfileScreen />,
+      };
+      const labels = { home: '01 Home', menu: '02 Menu', rewards: '03 Rewards', profile: '04 Profile' };
+
+      return (
+        <div style={{
+          fontFamily: "'Inter', -apple-system, system-ui, sans-serif",
+          background: `
+            radial-gradient(circle at 15% 10%, #FADEDC 0%, transparent 45%),
+            radial-gradient(circle at 85% 90%, #FFF8E1 0%, transparent 50%),
+            linear-gradient(135deg, #E8DDC9 0%, #D4C6B2 100%)
+          `,
+          minHeight: '100vh',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          padding: '30px',
+          WebkitFontSmoothing: 'antialiased'
+        }}>
+          <style>{`
+            * { box-sizing: border-box; }
+            button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
+            .screen-enter { animation: fadeIn 0.28s cubic-bezier(0.2, 0.8, 0.2, 1); }
+            @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+            .modal-enter { animation: modalIn 0.32s cubic-bezier(0.2, 0.8, 0.2, 1); }
+            @keyframes modalIn { from { opacity: 0; transform: translateY(20px) scale(0.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
+            .backdrop-enter { animation: backdropIn 0.28s ease; }
+            @keyframes backdropIn { from { opacity: 0; } to { opacity: 1; } }
+            .scroller::-webkit-scrollbar { display: none; }
+            .scroller { scrollbar-width: none; }
+            .press:active { transform: scale(0.97); transition: transform 0.08s ease; }
+          `}</style>
+
+          <div style={{ width: 390, height: 844, borderRadius: 48, overflow: 'hidden', position: 'relative', background: V.paper, boxShadow: '0 50px 100px -20px rgba(46,31,21,0.35), 0 0 0 10px #1a120b, 0 0 0 12px rgba(0,0,0,0.1)' }}>
+            <div style={{ position: 'absolute', top: 11, left: '50%', transform: 'translateX(-50%)', width: 120, height: 34, borderRadius: 22, background: '#000', zIndex: 50 }} />
+            <StatusBar />
+            <div className="scroller" data-screen-label={labels[tab]} style={{ position: 'absolute', top: 54, left: 0, right: 0, bottom: 84, overflowY: 'auto', overflowX: 'hidden' }}>
+              <div key={tab + (overlay || '')} className="screen-enter">
+                {overlay === 'shops'   ? <ShopsScreen onBack={() => setOverlay(null)}/>
+                 : overlay === 'history' ? <HistoryScreen onBack={() => setOverlay(null)}/>
+                 : screens[tab]}
+              </div>
             </div>
-            <span style={{ fontSize: 10, fontWeight: active ? 700 : 500, letterSpacing: '-0.01em' }}>{t.label}</span>
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
-export default function App() {
-  const [tab, setTab] = useState(() => {
-    try { return localStorage.getItem('vanilla-tab') || 'home'; } catch (e) { return 'home'; }
-  });
-  const [qrOpen, setQrOpen] = useState(false);
-  const [overlay, setOverlay] = useState(null); // 'shops' | 'history' | null
-  
-  useEffect(() => { 
-    try { localStorage.setItem('vanilla-tab', tab); } catch (e) {} 
-  }, [tab]);
-
-  const screens = {
-    home:    <HomeScreen onOpenQR={() => setQrOpen(true)} onNavigate={(t) => { setOverlay(null); setTab(t); }} onOpenShops={() => setOverlay('shops')} onOpenHistory={() => setOverlay('history')} />,
-    menu:    <MenuScreen />,
-    rewards: <RewardsScreen />,
-    profile: <ProfileScreen />,
-  };
-  const labels = { home: '01 Home', menu: '02 Menu', rewards: '03 Rewards', profile: '04 Profile' };
-
-  return (
-    <div style={{ 
-      fontFamily: "'Inter', -apple-system, system-ui, sans-serif",
-      background: `
-        radial-gradient(circle at 15% 10%, #FADEDC 0%, transparent 45%),
-        radial-gradient(circle at 85% 90%, #FFF8E1 0%, transparent 50%),
-        linear-gradient(135deg, #E8DDC9 0%, #D4C6B2 100%)
-      `,
-      minHeight: '100vh',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      padding: '30px',
-      WebkitFontSmoothing: 'antialiased'
-    }}>
-      <style>{`
-        * { box-sizing: border-box; }
-        button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
-        .screen-enter { animation: fadeIn 0.28s cubic-bezier(0.2, 0.8, 0.2, 1); }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-        .modal-enter { animation: modalIn 0.32s cubic-bezier(0.2, 0.8, 0.2, 1); }
-        @keyframes modalIn { from { opacity: 0; transform: translateY(20px) scale(0.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
-        .backdrop-enter { animation: backdropIn 0.28s ease; }
-        @keyframes backdropIn { from { opacity: 0; } to { opacity: 1; } }
-        .scroller::-webkit-scrollbar { display: none; }
-        .scroller { scrollbar-width: none; }
-        .press:active { transform: scale(0.97); transition: transform 0.08s ease; }
-      `}</style>
-      
-      <div style={{ width: 390, height: 844, borderRadius: 48, overflow: 'hidden', position: 'relative', background: V.paper, boxShadow: '0 50px 100px -20px rgba(46,31,21,0.35), 0 0 0 10px #1a120b, 0 0 0 12px rgba(0,0,0,0.1)' }}>
-        <div style={{ position: 'absolute', top: 11, left: '50%', transform: 'translateX(-50%)', width: 120, height: 34, borderRadius: 22, background: '#000', zIndex: 50 }} />
-        <StatusBar />
-        <div className="scroller" data-screen-label={labels[tab]} style={{ position: 'absolute', top: 54, left: 0, right: 0, bottom: 84, overflowY: 'auto', overflowX: 'hidden' }}>
-          <div key={tab + (overlay || '')} className="screen-enter">
-            {overlay === 'shops'   ? <ShopsScreen onBack={() => setOverlay(null)}/>
-             : overlay === 'history' ? <HistoryScreen onBack={() => setOverlay(null)}/>
-             : screens[tab]}
+            <TabBar tab={tab} setTab={(t) => { setOverlay(null); setTab(t); }} />
+            <div style={{ position: 'absolute', bottom: 8, left: '50%', transform: 'translateX(-50%)', width: 134, height: 5, borderRadius: 999, background: 'rgba(0,0,0,0.3)', zIndex: 40, pointerEvents: 'none' }} />
+            {qrOpen && <QRModal onClose={() => setQrOpen(false)} />}
           </div>
         </div>
-        <TabBar tab={tab} setTab={(t) => { setOverlay(null); setTab(t); }} />
-        <div style={{ position: 'absolute', bottom: 8, left: '50%', transform: 'translateX(-50%)', width: 134, height: 5, borderRadius: 999, background: 'rgba(0,0,0,0.3)', zIndex: 40, pointerEvents: 'none' }} />
-        {qrOpen && <QRModal onClose={() => setQrOpen(false)} />}
-      </div>
-    </div>
-  );
-}
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
