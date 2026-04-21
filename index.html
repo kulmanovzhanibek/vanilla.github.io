@@ -36,7 +36,7 @@
     // ═══ LOGOS ════════════════════════════════════════════════════════
     // Полный логотип: три шеврона + текст "vanilla"
     function VanillaMark({ size = 22, textColor = V.ink }) {
-      const height = size * 2;
+      const height = size * 2.2;
       return (
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}>
           <div
@@ -136,34 +136,39 @@
     ];
 
     const HISTORY = [
-      { id: 1, kind: '+', title: 'Капучино 0.3л',       shop: 'Ala Park',         date: 'Сегодня, 09:12',  amount: 45 },
-      { id: 2, kind: '+', title: 'Раф ванильный',       shop: 'Кунаева 130',      date: 'Вчера, 18:47',    amount: 38 },
-      { id: 3, kind: '-', title: 'Награда: Круассан',   shop: 'Ala Park',         date: '19 апр, 11:02',   amount: 150 },
-      { id: 4, kind: '+', title: 'Флэт уайт + чизкейк', shop: 'Макатаева 28/1',   date: '18 апр, 14:30',   amount: 72 },
-      { id: 5, kind: '+', title: 'Эспрессо двойной',    shop: 'Villa',            date: '17 апр, 08:15',   amount: 22 },
-      { id: 6, kind: '-', title: 'Награда: Кофе',       shop: 'Кабанбай батыра',  date: '14 апр, 10:44',   amount: 200 },
-      { id: 7, kind: '+', title: 'Латте + круассан',    shop: 'Кунаева 130',      date: '12 апр, 09:30',   amount: 56 },
-      { id: 8, kind: '+', title: 'Американо',           shop: 'Ala Park',         date: '10 апр, 07:58',   amount: 18 },
-      { id: 9, kind: '+', title: 'Раф + десерт',        shop: 'Villa',            date: '08 апр, 16:20',   amount: 84 },
+      { id: 1, kind: '+', title: 'Капучино 0.3л',       shop: 'Кунаева, 130',         date: 'Сегодня, 09:12',  amount: 45 },
+      { id: 2, kind: '+', title: 'Раф ванильный',       shop: 'Курмангазы, 54',       date: 'Вчера, 18:47',    amount: 38 },
+      { id: 3, kind: '-', title: 'Награда: Круассан',   shop: 'Кунаева, 130',         date: '19 апр, 11:02',   amount: 150 },
+      { id: 4, kind: '+', title: 'Флэт уайт + чизкейк', shop: 'Бухар жырау, 23',      date: '18 апр, 14:30',   amount: 72 },
+      { id: 5, kind: '+', title: 'Эспрессо двойной',    shop: 'Аль-Фараби, 140а',     date: '17 апр, 08:15',   amount: 22 },
+      { id: 6, kind: '-', title: 'Награда: Кофе',       shop: 'Кабанбай батыра, 65',  date: '14 апр, 10:44',   amount: 200 },
+      { id: 7, kind: '+', title: 'Латте + круассан',    shop: 'Кунаева, 130',         date: '12 апр, 09:30',   amount: 56 },
+      { id: 8, kind: '+', title: 'Американо',           shop: 'Гоголя, 87',           date: '10 апр, 07:58',   amount: 18 },
+      { id: 9, kind: '+', title: 'Раф + десерт',        shop: 'Айтеке би, 21',        date: '08 апр, 16:20',   amount: 84 },
     ];
 
     const SHOPS = [
-      { id: 'ala',   name: 'Ala Park',        addr: 'ТРЦ Ala Park, Саина 14', hours: '08:00–23:00', dist: '1.2 км', open: true, flagship: true },
-      { id: 'kun',   name: 'Кунаева 130',     addr: 'Кунаева 130',            hours: '07:30–22:00', dist: '2.4 км', open: true },
-      { id: 'kab',   name: 'Кабанбай батыра', addr: 'Кабанбай батыра 65',     hours: '08:00–22:00', dist: '3.1 км', open: true },
-      { id: 'mak',   name: 'Макатаева 28/1',  addr: 'Макатаева 28/1',         hours: '08:00–21:00', dist: '4.0 км', open: true },
-      { id: 'villa', name: 'Villa',           addr: 'Аль-Фараби 140А/3',      hours: '09:00–23:00', dist: '5.7 км', open: false, flagship: true },
+      { id: 'kun130',    name: 'Vanilla',                 addr: 'Кунаева, 130',                            hours: 'до 22:00', dist: '2.4 км', open: true,  rating: 4.4, reviews: 2726, query: 'Vanilla кофейня Кунаева 130 Алматы' },
+      { id: 'satp82',    name: 'Vanilla',                 addr: 'Каныша Сатпаева, 82а/1',                  hours: 'до 22:00', dist: '3.8 км', open: true,  rating: 4.6, reviews: 1182, query: 'Vanilla кофейня Сатпаева 82а Алматы' },
+      { id: 'villa',     name: 'Vanilla',                 addr: 'МФК VILLA, Аль-Фараби, 140а/3',           hours: 'до 22:00', dist: '5.7 км', open: true,  rating: 4.2, reviews: 775,  flagship: true, query: 'Vanilla кофейня Аль-Фараби 140а Алматы' },
+      { id: 'buhar',     name: 'Vanilla',                 addr: 'Бухар жырау, 23',                         hours: 'до 22:00', dist: '4.1 км', open: true,  rating: 4.4, reviews: 1106, query: 'Vanilla кофейня Бухар жырау 23 Алматы' },
+      { id: 'rad343',    name: 'Vanilla',                 addr: 'Радостовца, 343 блок 17',                 hours: 'до 22:00', dist: '6.3 км', open: true,  rating: 4.4, reviews: 1280, query: 'Vanilla кофейня Радостовца 343 Алматы' },
+      { id: 'azer67',    name: 'Vanilla',                 addr: 'Азербаева, 67',                           hours: 'до 22:00', dist: '7.5 км', open: true,  rating: 4.3, reviews: 1220, query: 'Vanilla кофейня Азербаева 67 Алматы' },
+      { id: 'kurm54',    name: 'Vanilla',                 addr: 'Курмангазы, 54',                          hours: 'до 22:00', dist: '3.5 км', open: true,  rating: 4.6, reviews: 1424, flagship: true, query: 'Vanilla кофейня Курмангазы 54 Алматы' },
+      { id: 'kab112',    name: 'Vanilla Coffee bar',      addr: 'Кабанбай батыра, 112',                    hours: 'закрыто',  dist: '3.0 км', open: false, rating: 5.0, reviews: 172,  query: 'Vanilla Coffee bar Кабанбай батыра 112 Алматы' },
+      { id: 'gag127',    name: 'Vanilla Handmade Coffee', addr: 'ЖК Бес Тулга, Гагарина, 127/91',          hours: 'до 22:00', dist: '5.0 км', open: true,  rating: 4.3, reviews: 565,  query: 'Vanilla Handmade Coffee Гагарина 127 Алматы' },
+      { id: 'navoi310',  name: 'Vanilla Handmade Coffee', addr: 'Навои, 310',                              hours: 'закрыто',  dist: '8.2 км', open: false, rating: 4.3, reviews: 59,   query: 'Vanilla Handmade Coffee Навои 310 Алматы' },
+      { id: 'gog87',     name: 'Vanilla',                 addr: 'Гоголя, 87',                              hours: 'открыто',  dist: '2.8 км', open: true,  rating: 4.5, reviews: 1134, query: 'Vanilla кофейня Гоголя 87 Алматы' },
+      { id: 'bays45',    name: 'Vanilla Handmade Coffee', addr: 'Байсеитовой, 45',                         hours: 'закрыто',  dist: '4.6 км', open: false, rating: 4.7, reviews: 103,  query: 'Vanilla Handmade Coffee Байсеитовой 45 Алматы' },
+      { id: 'ait21',     name: 'Vanilla',                 addr: 'Айтеке би, 21',                           hours: 'до 22:00', dist: '3.3 км', open: true,  rating: 4.5, reviews: 822,  query: 'Vanilla кофейня Айтеке би 21 Алматы' },
+      { id: 'lug99',     name: 'Vanilla Handmade Coffee', addr: 'Луганского, 99/1',                        hours: 'закрыто',  dist: '4.9 км', open: false, rating: 4.4, reviews: 253,  query: 'Vanilla Handmade Coffee Луганского 99 Алматы' },
+      { id: 'kab65',     name: 'Vanilla Handmade Coffee', addr: 'Кабанбай батыра, 65',                     hours: 'до 22:00', dist: '3.1 км', open: true,  rating: 4.5, reviews: 404,  query: 'Vanilla Handmade Coffee Кабанбай батыра 65 Алматы' },
+      { id: 'kerey582',  name: 'Vanilla Coffeeshop',      addr: 'Керей-Жанибек хандар, 582/2',             hours: 'закрыто',  dist: '7.8 км', open: false, rating: 4.7, reviews: 183,  query: 'Vanilla Coffeeshop Керей-Жанибек хандар 582 Алматы' },
     ];
 
-    const STATS = { earned: 2840, spent: 1950, visits: 64, favorite: 'Кунаева 130', joined: 'октябрь 2024' };
+    const STATS = { earned: 2840, spent: 1950, visits: 64, favorite: 'Кунаева, 130', joined: 'октябрь 2024' };
 
-    const MENU_SHOPS = [
-      { id: 'ala',  name: 'Ala Park' },
-      { id: 'kun',  name: 'Кунаева 130' },
-      { id: 'kab',  name: 'Кабанбай батыра 65' },
-      { id: 'gag',  name: 'Гагарина' },
-      { id: 'az',   name: 'Azerbayev 67' },
-    ];
+    const MENU_SHOPS = SHOPS.map(s => ({ id: s.id, name: s.addr }));
     const CATEGORIES = ['Кофе','Матча','Чай','Завтраки','Салаты','Супы','Паста','Горячее','Выпечка'];
     const MENU = {
       'Кофе': [
@@ -384,7 +389,7 @@
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <QuickAction label="Награды" sub="6 доступно" icon={<Icon.Gift size={22} c={V.bright}/>} bg={V.vanilla} onClick={() => onNavigate('rewards')} />
-            <QuickAction label="Кофейни" sub="5 точек"    icon={<Icon.Pin  size={22} c={V.coffee}/>}  bg={V.pinkCream} onClick={onOpenShops} />
+            <QuickAction label="Кофейни" sub="16 точек"   icon={<Icon.Pin  size={22} c={V.coffee}/>}  bg={V.pinkCream} onClick={onOpenShops} />
             <QuickAction label="История" sub="все операции" icon={<Icon.Clock size={22} c={V.coffee}/>} bg="#EFE5D3" onClick={onOpenHistory} />
             <QuickAction label="Меню"    sub="60+ позиций"  icon={<Icon.Cup size={22} variant="orange" />}   bg="#FCE9DA" onClick={() => onNavigate('menu')} />
           </div>
@@ -622,6 +627,7 @@
     }
 
     function ShopCard({ shop }) {
+      const url = `https://2gis.kz/almaty/search/${encodeURIComponent(shop.query)}`;
       return (
         <div style={{ background: '#fff', borderRadius: 20, padding: 16, border: `1px solid ${V.line}` }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
@@ -631,7 +637,14 @@
                 {shop.flagship && <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', background: V.vanilla, color: V.coffee, borderRadius: 6, letterSpacing: '0.05em' }}>FLAGSHIP</span>}
               </div>
               <div style={{ fontSize: 13, color: V.mute, marginTop: 4 }}>{shop.addr}</div>
-              <div style={{ display: 'flex', gap: 12, marginTop: 8, fontSize: 12 }}>
+              <div style={{ display: 'flex', gap: 12, marginTop: 8, fontSize: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+                {shop.rating && (
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                    <Icon.Star size={12} c={V.bright} fill />
+                    <span style={{ color: V.ink, fontWeight: 700 }}>{shop.rating.toFixed(1)}</span>
+                    <span style={{ color: V.mute }}>· {shop.reviews}</span>
+                  </span>
+                )}
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
                   <Icon.Clock size={13} c={shop.open ? '#2E7D32' : V.mute} />
                   <span style={{ color: shop.open ? '#2E7D32' : V.mute, fontWeight: 600 }}>{shop.open ? 'Открыто' : 'Закрыто'}</span>
@@ -641,9 +654,15 @@
             </div>
             <div style={{ fontSize: 12, fontWeight: 700, color: V.bright, background: 'rgba(255,102,0,0.1)', padding: '4px 10px', borderRadius: 999, flexShrink: 0 }}>{shop.dist}</div>
           </div>
-          <button className="press" style={{ marginTop: 12, width: '100%', background: V.coffee, color: V.vanilla, border: 'none', padding: '12px', borderRadius: 14, fontSize: 14, fontWeight: 700, cursor: 'pointer', letterSpacing: '-0.01em', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-            <Icon.Route size={16} c={V.vanilla} /> Построить маршрут
-          </button>
+          <a
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="press"
+            style={{ marginTop: 12, width: '100%', background: V.coffee, color: V.vanilla, border: 'none', padding: '12px', borderRadius: 14, fontSize: 14, fontWeight: 700, cursor: 'pointer', letterSpacing: '-0.01em', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, textDecoration: 'none', boxSizing: 'border-box' }}
+          >
+            <Icon.Route size={16} c={V.vanilla} /> Открыть в 2ГИС
+          </a>
         </div>
       );
     }
@@ -657,7 +676,7 @@
             </button>
             <div>
               <div style={{ fontSize: 28, fontWeight: 800, color: V.ink, letterSpacing: '-0.03em', lineHeight: 1 }}>Кофейни</div>
-              <div style={{ fontSize: 13, color: V.mute, marginTop: 4 }}>5 точек Vanilla в Алматы</div>
+              <div style={{ fontSize: 13, color: V.mute, marginTop: 4 }}>16 точек Vanilla в Алматы</div>
             </div>
           </div>
           <div style={{ height: 140, borderRadius: 20, position: 'relative', overflow: 'hidden', background: `linear-gradient(135deg, ${V.vanilla}, ${V.pinkCream})`, border: `1px solid ${V.line}` }}>
