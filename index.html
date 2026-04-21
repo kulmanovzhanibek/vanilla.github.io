@@ -115,6 +115,13 @@
         if (variant === 'dark')   color = V.coffee;
         return <VanillaChevrons size={size} color={color} opacity={opacity} />;
       },
+      CupCoffee: ({ size = 24, c = 'currentColor' }) => (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M4 8h13v7a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V8Z"/>
+          <path d="M17 10h1.5a2.5 2.5 0 0 1 0 5H17"/>
+          <path d="M8 3c0 1-1 1.5-1 2.5S8 7 8 8M12 3c0 1-1 1.5-1 2.5S12 7 12 8"/>
+        </svg>
+      ),
       Croissant: ({ size = 24, c = 'currentColor' }) => (
         <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><path d="M4 14c2-6 8-8 14-6l-4 4 4 4c-6 2-12 0-14-2Z"/><path d="M8 12l3 3M12 10l3 3"/></svg>
       ),
@@ -411,7 +418,7 @@
             <QuickAction label="Награды" sub="6 доступно" icon={<Icon.Gift size={22} c={V.bright}/>} bg={V.vanilla} onClick={() => onNavigate('rewards')} />
             <QuickAction label="Кофейни" sub="5 точек"    icon={<Icon.Pin  size={22} c={V.coffee}/>}  bg={V.pinkCream} onClick={onOpenShops} />
             <QuickAction label="История" sub="все операции" icon={<Icon.Clock size={22} c={V.coffee}/>} bg="#EFE5D3" onClick={onOpenHistory} />
-            <QuickAction label="Меню"    sub="60+ позиций"  icon={<Icon.Cup size={22} variant="orange" />}   bg="#FCE9DA" onClick={() => onNavigate('menu')} />
+            <QuickAction label="Меню"    sub="60+ позиций"  icon={<Icon.CupCoffee size={22} c={V.bright} />}   bg="#FCE9DA" onClick={() => onNavigate('menu')} />
           </div>
 
           <div>
@@ -532,7 +539,7 @@
         <div style={{ background: '#fff', borderRadius: 20, padding: 14, border: `1px solid ${V.line}`, display: 'flex', alignItems: 'center', gap: 14, opacity: canClaim ? 1 : 0.55 }}>
           <div style={{ width: 56, height: 56, borderRadius: 16, flexShrink: 0, background: `${reward.accent}22`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             {reward.icon === 'Cup'
-              ? <IconComp size={28} variant="orange" />
+              ? <Icon.CupCoffee size={28} c={reward.accent} />
               : <IconComp size={28} c={reward.accent} />}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
