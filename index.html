@@ -13,7 +13,6 @@
     #root { min-height: 100vh; }
   </style>
 
-  <!-- React + Babel через CDN -->
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -21,7 +20,7 @@
 <body>
   <div id="root"></div>
 
-  <script type="text/babel" data-presets="react" data-type="module">
+  <script type="text/babel" data-presets="react">
     const { useState, useEffect, useMemo, Fragment } = React;
 
     // ═══ BRAND ════════════════════════════════════════════════════════
@@ -76,17 +75,27 @@
       User: ({ size = 24, c = 'currentColor', fill = false }) => (
         <svg width={size} height={size} viewBox="0 0 24 24" fill={fill ? c : 'none'} stroke={c} strokeWidth={fill ? 0 : 1.8} strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.5 3.5-7 8-7s8 2.5 8 7"/></svg>
       ),
-      Cup: ({ size = 24 }) => (
-        <img
-          src="preview-2.png"
-          alt="Cup Icon"
-          style={{ width: size, height: size, objectFit: 'contain', flexShrink: 0 }}
-          onError={(e) => {
-            e.target.onerror = null;
-            e.target.src = "https://api.iconify.design/solar:cup-hot-bold.svg?color=%234A3728";
-          }}
-        />
-      ),
+      Cup: ({ size = 24, variant = 'none', opacity = 1 }) => {
+        let filter = 'none';
+        if (variant === 'white') filter = 'brightness(0) invert(1)';
+        if (variant === 'orange') filter = 'brightness(0) saturate(100%) invert(42%) sepia(86%) saturate(2716%) hue-rotate(359deg) brightness(101%) contrast(106%)';
+        if (variant === 'dark') filter = 'brightness(0) saturate(100%) invert(20%) sepia(16%) saturate(1637%) hue-rotate(342deg) brightness(94%) contrast(88%)';
+        return (
+          <img
+            src="preview-2.png"
+            alt="Cup Icon"
+            style={{
+              width: size, height: size, objectFit: 'contain', flexShrink: 0,
+              filter: filter,
+              opacity: opacity
+            }}
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = "https://api.iconify.design/solar:cup-hot-bold.svg?color=%234A3728";
+            }}
+          />
+        );
+      },
       Croissant: ({ size = 24, c = 'currentColor' }) => (
         <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><path d="M4 14c2-6 8-8 14-6l-4 4 4 4c-6 2-12 0-14-2Z"/><path d="M8 12l3 3M12 10l3 3"/></svg>
       ),
@@ -359,6 +368,11 @@
               {Array.from({ length: USER.cupsGoal }).map((_, i) => {
                 const filled = i < USER.cupsCollected;
                 const isGoal = i === USER.cupsGoal - 1;
+
+                let iconVariant = 'dark';
+                if (filled) iconVariant = 'white';
+                else if (isGoal) iconVariant = 'orange';
+
                 return (
                   <div key={i} style={{
                     flex: 1, aspectRatio: '1', borderRadius: '50%',
@@ -367,8 +381,7 @@
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     overflow: 'hidden'
                   }}>
-                    {filled && <Icon.Cup size={16} />}
-                    {!filled && isGoal && <Icon.Cup size={14} c={V.bright} />}
+                    <Icon.Cup size={filled ? 16 : 14} variant={iconVariant} opacity={(!filled && !isGoal) ? 0.35 : 1} />
                   </div>
                 );
               })}
@@ -379,7 +392,7 @@
             <QuickAction label="Награды" sub="6 доступно" icon={<Icon.Gift size={22} c={V.bright}/>} bg={V.vanilla} onClick={() => onNavigate('rewards')} />
             <QuickAction label="Кофейни" sub="5 точек"    icon={<Icon.Pin  size={22} c={V.coffee}/>}  bg={V.pinkCream} onClick={onOpenShops} />
             <QuickAction label="История" sub="все операции" icon={<Icon.Clock size={22} c={V.coffee}/>} bg="#EFE5D3" onClick={onOpenHistory} />
-            <QuickAction label="Меню"    sub="60+ позиций"  icon={<Icon.Cup size={22} c={V.bright}/>}   bg="#FCE9DA" onClick={() => onNavigate('menu')} />
+            <QuickAction label="Меню"    sub="60+ позиций"  icon={<Icon.Cup size={22} variant="orange" />}   bg="#FCE9DA" onClick={() => onNavigate('menu')} />
           </div>
 
           <div>
@@ -499,7 +512,9 @@
       return (
         <div style={{ background: '#fff', borderRadius: 20, padding: 14, border: `1px solid ${V.line}`, display: 'flex', alignItems: 'center', gap: 14, opacity: canClaim ? 1 : 0.55 }}>
           <div style={{ width: 56, height: 56, borderRadius: 16, flexShrink: 0, background: `${reward.accent}22`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <IconComp size={28} c={reward.accent} />
+            {reward.icon === 'Cup'
+              ? <IconComp size={28} variant="orange" />
+              : <IconComp size={28} c={reward.accent} />}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 15, fontWeight: 700, color: V.ink, letterSpacing: '-0.01em' }}>{reward.title}</div>
@@ -513,8 +528,7 @@
       );
     }
 
-    function RewardsScreen() {
-      const [sub, setSub] = useState('rewards');
+    function RewardsScreen({ sub, setSub }) {
       return (
         <div style={{ padding: '0 20px 24px', display: 'flex', flexDirection: 'column', gap: 16 }}>
           <PageHeader title="Бонусы" sub={`На счету ${USER.bonuses} бонусов`} />
@@ -590,20 +604,6 @@
               </div>
             </div>
           ))}
-        </div>
-      );
-    }
-
-    function HistoryScreen({ onBack }) {
-      return (
-        <div style={{ padding: '0 20px 24px', display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, paddingTop: 4 }}>
-            <button onClick={onBack} className="press" style={{ width: 40, height: 40, borderRadius: 12, background: '#fff', border: `1px solid ${V.line}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-              <Icon.Chevron c={V.ink} dir="left" size={18}/>
-            </button>
-            <div style={{ fontSize: 28, fontWeight: 800, color: V.ink, letterSpacing: '-0.03em', lineHeight: 1 }}>История</div>
-          </div>
-          <HistoryList/>
         </div>
       );
     }
@@ -787,8 +787,8 @@
             <rect x={size / 2 - 22} y={size / 2 - 22} width={44} height={44} rx={10} fill="#fff"/>
             <rect x={size / 2 - 19} y={size / 2 - 19} width={38} height={38} rx={9} fill={V.coffee}/>
           </svg>
-          <div style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }}>
-            <img src="preview-2.png" alt="" style={{ width: 32, height: 32, display: 'block' }} />
+          <div style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <img src="preview-2.png" alt="Vanilla Mark" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', display: 'block' }} />
           </div>
         </div>
       );
@@ -870,15 +870,25 @@
       });
       const [qrOpen, setQrOpen] = useState(false);
       const [overlay, setOverlay] = useState(null);
+      const [rewardsSub, setRewardsSub] = useState('rewards');
 
       useEffect(() => {
         try { localStorage.setItem('vanilla-tab', tab); } catch (e) {}
       }, [tab]);
 
       const screens = {
-        home:    <HomeScreen onOpenQR={() => setQrOpen(true)} onNavigate={(t) => { setOverlay(null); setTab(t); }} onOpenShops={() => setOverlay('shops')} onOpenHistory={() => setOverlay('history')} />,
+        home:    <HomeScreen
+                   onOpenQR={() => setQrOpen(true)}
+                   onNavigate={(t) => {
+                     setOverlay(null);
+                     if (t === 'rewards') setRewardsSub('rewards');
+                     setTab(t);
+                   }}
+                   onOpenShops={() => setOverlay('shops')}
+                   onOpenHistory={() => { setOverlay(null); setRewardsSub('history'); setTab('rewards'); }}
+                 />,
         menu:    <MenuScreen />,
-        rewards: <RewardsScreen />,
+        rewards: <RewardsScreen sub={rewardsSub} setSub={setRewardsSub} />,
         profile: <ProfileScreen />,
       };
       const labels = { home: '01 Home', menu: '02 Menu', rewards: '03 Rewards', profile: '04 Profile' };
@@ -898,7 +908,7 @@
         }}>
           <style>{`
             * { box-sizing: border-box; }
-            button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
+            button { font-family: inherit; -webkit-tap-highlight-color: transparent; outline: none; }
             .screen-enter { animation: fadeIn 0.28s cubic-bezier(0.2, 0.8, 0.2, 1); }
             @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
             .modal-enter { animation: modalIn 0.32s cubic-bezier(0.2, 0.8, 0.2, 1); }
@@ -915,12 +925,15 @@
             <StatusBar />
             <div className="scroller" data-screen-label={labels[tab]} style={{ position: 'absolute', top: 54, left: 0, right: 0, bottom: 84, overflowY: 'auto', overflowX: 'hidden' }}>
               <div key={tab + (overlay || '')} className="screen-enter">
-                {overlay === 'shops'   ? <ShopsScreen onBack={() => setOverlay(null)}/>
-                 : overlay === 'history' ? <HistoryScreen onBack={() => setOverlay(null)}/>
+                {overlay === 'shops' ? <ShopsScreen onBack={() => setOverlay(null)}/>
                  : screens[tab]}
               </div>
             </div>
-            <TabBar tab={tab} setTab={(t) => { setOverlay(null); setTab(t); }} />
+            <TabBar tab={tab} setTab={(t) => {
+              setOverlay(null);
+              if (t === 'rewards' && tab !== 'rewards') setRewardsSub('rewards');
+              setTab(t);
+            }} />
             <div style={{ position: 'absolute', bottom: 8, left: '50%', transform: 'translateX(-50%)', width: 134, height: 5, borderRadius: 999, background: 'rgba(0,0,0,0.3)', zIndex: 40, pointerEvents: 'none' }} />
             {qrOpen && <QRModal onClose={() => setQrOpen(false)} />}
           </div>
