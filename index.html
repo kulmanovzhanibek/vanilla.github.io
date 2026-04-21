@@ -34,24 +34,57 @@
     };
 
     // ═══ LOGOS ════════════════════════════════════════════════════════
+    // Полный логотип: три шеврона + текст "vanilla"
     function VanillaMark({ size = 22, textColor = V.ink }) {
+      const height = size * 1.4;
       return (
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}>
-          <img
-            src="preview-2.png"
-            alt="Vanilla Icon"
+          <div
+            role="img"
+            aria-label="Vanilla"
             style={{
-              width: size * 2.8,
-              height: size * 2.8,
-              objectFit: 'contain',
-              mixBlendMode: 'multiply',
-            }}
-            onError={(e) => {
-               e.target.onerror = null;
-               e.target.src = "https://api.iconify.design/solar:cup-hot-bold.svg?color=%23FF6600";
+              height: height,
+              width: height * (7920 / 6120),
+              backgroundColor: textColor,
+              WebkitMaskImage: 'url(preview.svg)',
+              maskImage: 'url(preview.svg)',
+              WebkitMaskSize: 'contain',
+              maskSize: 'contain',
+              WebkitMaskRepeat: 'no-repeat',
+              maskRepeat: 'no-repeat',
+              WebkitMaskPosition: 'center',
+              maskPosition: 'center',
             }}
           />
         </div>
+      );
+    }
+
+    // Только стопка из трёх шевронов (без текста) — для чашек и плиток
+    function VanillaChevrons({ size = 24, color = V.coffee, opacity = 1 }) {
+      return (
+        <div
+          role="img"
+          aria-label="Vanilla"
+          style={{
+            width: size,
+            height: size,
+            flexShrink: 0,
+            opacity: opacity,
+            backgroundColor: color,
+            WebkitMaskImage: 'url(preview.svg)',
+            maskImage: 'url(preview.svg)',
+            // viewBox полного SVG: 7920 x 6120
+            // Область шевронов: x 500..2100, y 2100..4900 (то есть 1600 x 2800)
+            // Кадрирую через mask-size + mask-position
+            WebkitMaskSize: `${size * (7920 / 1600)}px ${size * (6120 / 2800)}px`,
+            maskSize: `${size * (7920 / 1600)}px ${size * (6120 / 2800)}px`,
+            WebkitMaskPosition: `-${size * (500 / 1600)}px -${size * (2100 / 2800)}px`,
+            maskPosition: `-${size * (500 / 1600)}px -${size * (2100 / 2800)}px`,
+            WebkitMaskRepeat: 'no-repeat',
+            maskRepeat: 'no-repeat',
+          }}
+        />
       );
     }
 
@@ -75,26 +108,12 @@
       User: ({ size = 24, c = 'currentColor', fill = false }) => (
         <svg width={size} height={size} viewBox="0 0 24 24" fill={fill ? c : 'none'} stroke={c} strokeWidth={fill ? 0 : 1.8} strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.5 3.5-7 8-7s8 2.5 8 7"/></svg>
       ),
-      Cup: ({ size = 24, variant = 'none', opacity = 1 }) => {
-        let filter = 'none';
-        if (variant === 'white') filter = 'brightness(0) invert(1)';
-        if (variant === 'orange') filter = 'brightness(0) saturate(100%) invert(42%) sepia(86%) saturate(2716%) hue-rotate(359deg) brightness(101%) contrast(106%)';
-        if (variant === 'dark') filter = 'brightness(0) saturate(100%) invert(20%) sepia(16%) saturate(1637%) hue-rotate(342deg) brightness(94%) contrast(88%)';
-        return (
-          <img
-            src="preview-2.png"
-            alt="Cup Icon"
-            style={{
-              width: size, height: size, objectFit: 'contain', flexShrink: 0,
-              filter: filter,
-              opacity: opacity
-            }}
-            onError={(e) => {
-              e.target.onerror = null;
-              e.target.src = "https://api.iconify.design/solar:cup-hot-bold.svg?color=%234A3728";
-            }}
-          />
-        );
+      Cup: ({ size = 24, variant = 'dark', opacity = 1 }) => {
+        let color = V.coffee;
+        if (variant === 'white')  color = '#FFFFFF';
+        if (variant === 'orange') color = V.bright;
+        if (variant === 'dark')   color = V.coffee;
+        return <VanillaChevrons size={size} color={color} opacity={opacity} />;
       },
       Croissant: ({ size = 24, c = 'currentColor' }) => (
         <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><path d="M4 14c2-6 8-8 14-6l-4 4 4 4c-6 2-12 0-14-2Z"/><path d="M8 12l3 3M12 10l3 3"/></svg>
@@ -322,8 +341,8 @@
             borderRadius: 28, padding: '22px 22px 20px', color: V.vanilla, border: 'none', cursor: 'pointer',
             textAlign: 'left', boxShadow: '0 12px 32px -12px rgba(74,55,40,0.5)', overflow: 'hidden',
           }}>
-            <div style={{ position: 'absolute', right: -20, top: -20, opacity: 0.1 }}>
-              <img src="preview-2.png" alt="" style={{ width: 140, height: 140 }} />
+            <div style={{ position: 'absolute', right: -20, top: -20, opacity: 0.12, pointerEvents: 'none' }}>
+              <VanillaChevrons size={140} color={V.vanilla} />
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative' }}>
               <div>
@@ -788,7 +807,7 @@
             <rect x={size / 2 - 19} y={size / 2 - 19} width={38} height={38} rx={9} fill={V.coffee}/>
           </svg>
           <div style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <img src="preview-2.png" alt="Vanilla Mark" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', display: 'block' }} />
+            <VanillaChevrons size={28} color="#FFFFFF" />
           </div>
         </div>
       );
